@@ -1,0 +1,40 @@
+# Descarga los escudos originales que faltan y actualiza el sitio
+# (ejecución manual: pestaña Actions → "Descargar escudos originales" → Run workflow)
+name: Descargar escudos originales
+
+on:
+  workflow_dispatch:
+    inputs:
+      selecciones:
+        description: 'Descargar también escudos de federaciones nacionales'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  escudos:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Descargar escudos desde TheSportsDB
+        run: node tools/descargar-escudos.mjs ${{ inputs.selecciones && '--selecciones' || '' }}
+
+      - name: Regenerar archivo único (dist)
+        run: ./build.sh
+
+      - name: Confirmar cambios (dispara el redespliegue del sitio)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add js/escudos-extra.js dist/
+          git diff --cached --quiet && echo "Sin cambios" || {
+            git commit -m "Agregar escudos originales descargados de TheSportsDB"
+            git push
+          }
