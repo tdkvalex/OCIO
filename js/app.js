@@ -1138,6 +1138,80 @@ function vincularCuenta(token) {
         : 'No se pudo vincular: ' + e.message);
     });
 }
+/* ---------- Vincular otro dispositivo con código / enlace / QR ---------- */
+function codigoVinculo() {
+  if (!sincVinculada()) return null;
+  var json = JSON.stringify({ t: db.sync.token, g: db.sync.gistId, u: db.sync.usuario });
+  return btoa(unescape(encodeURIComponent(json)))
+    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+function decodificarVinculo(codigo) {
+  try {
+    var b = String(codigo || '').trim().replace(/-/g, '+').replace(/_/g, '/');
+    while (b.length % 4) b += '=';
+    var o = JSON.parse(decodeURIComponent(escape(atob(b))));
+    if (o && o.t && o.g) return o;
+  } catch (e) { /* no era un código */ }
+  return null;
+}
+function enlaceVinculo() {
+  var codigo = codigoVinculo();
+  return codigo ? location.origin + location.pathname + '#vincular=' + codigo : null;
+}
+function vincularConCodigo(o) {
+  avisar('Vinculando dispositivo…');
+  apiGH('GET', '/user', null, o.t)
+    .then(function (u) {
+      db.sync = { token: o.t, gistId: o.g, usuario: u.login, ultimo: null };
+      if (!db.torneos.length) db.actualizado = 0; // dispositivo nuevo: ganan los datos de la nube
+      guardar(true);
+      avisar('✅ Dispositivo vinculado a ' + u.login);
+      return bajarNube(false);
+    })
+    .then(function () { render(true); })
+    .catch(function (e) {
+      avisar(e.message === 'token' ? 'El código ya no es válido.' : 'No se pudo vincular: revisa tu conexión.');
+    });
+}
+function copiarTexto(texto, aviso) {
+  var listo = function () { avisar(aviso || 'Copiado ✔️'); };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(texto).then(listo, function () { copiarTextoLegado(texto); listo(); });
+  } else { copiarTextoLegado(texto); listo(); }
+}
+function copiarTextoLegado(texto) {
+  try {
+    var ta = document.createElement('textarea');
+    ta.value = texto; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); ta.remove();
+  } catch (e) { }
+}
+function cajaVinculo() {
+  var enlace = enlaceVinculo();
+  var codigo = codigoVinculo();
+  if (!enlace) return '';
+  var svg = '';
+  try {
+    if (typeof qrcode !== 'undefined') {
+      var qr = qrcode(0, 'M');
+      qr.addData(enlace);
+      qr.make();
+      svg = qr.createSvgTag(3, 4);
+    }
+  } catch (e) { /* enlace muy largo para QR: se ofrece copiar */ }
+  return '<div class="vinculo-box">' +
+    '<div class="fld-tit" style="margin-top:12px">Vincular otro dispositivo</div>' +
+    (svg ? '<div class="qr-marco">' + svg + '</div>' +
+      '<div style="color:var(--muted);font-size:.78rem;margin:6px 0 10px">Escanéalo con la cámara del otro teléfono…</div>' : '') +
+    '<div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center">' +
+    '<button class="btn btn-sm btn-primary" data-a="sync-compartir-enlace">🔗 Compartir enlace</button>' +
+    '<button class="btn btn-sm" data-a="sync-copiar-codigo">📋 Copiar código</button></div>' +
+    '<div style="color:var(--muted);font-size:.75rem;margin-top:10px">…o pega el código en la pantalla de inicio de la app del otro dispositivo. ' +
+    '<b>Ojo:</b> quien tenga este código podrá ver y editar tus torneos — compártelo solo con quien lleve el torneo contigo.</div>' +
+    '</div>';
+}
+
 function cartaSync() {
   var html = '<div class="section-title">Sincronización entre dispositivos</div><div class="card">';
   if (sincVinculada()) {
@@ -1146,16 +1220,21 @@ function cartaSync() {
       '<div style="color:var(--muted);font-size:.83rem;margin-bottom:12px">Última sincronización: <span data-sync-estado>' + esc(ultimo) + '</span></div>' +
       '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
       '<button class="btn btn-sm" data-a="sync-ahora">🔄 Sincronizar ahora</button>' +
+      '<button class="btn btn-sm" data-a="sync-ver-vinculo">📲 Vincular otro dispositivo</button>' +
       '<button class="btn btn-sm btn-danger" data-a="sync-desvincular">Desvincular</button></div>' +
-      '<div style="color:var(--muted);font-size:.75rem;margin-top:10px">Tus torneos se guardan en un Gist privado de tu GitHub y se actualizan solos al hacer cambios. Vincula otro dispositivo con el mismo token para verlos ahí.</div>';
+      (st.verVinculo ? cajaVinculo() : '') +
+      '<div style="color:var(--muted);font-size:.75rem;margin-top:10px">Tus torneos se guardan en un Gist privado de tu GitHub y se actualizan solos al hacer cambios.</div>';
   } else {
-    html += '<div style="font-size:.9rem;line-height:1.6;margin-bottom:10px">☁️ Vincula tu cuenta de <b>GitHub</b> (gratis) para guardar tus torneos en la nube y seguirlos desde cualquier dispositivo.</div>' +
+    html += '<div style="font-size:.9rem;line-height:1.6;margin-bottom:10px">☁️ Vincula tu cuenta para guardar tus torneos en la nube y seguirlos desde cualquier dispositivo.</div>' +
+      '<div class="fld-tit">¿Ya tienes un código de vinculación?</div>' +
+      '<div style="color:var(--muted);font-size:.8rem;margin-bottom:8px">Pídelo en el otro dispositivo (📲 «Vincular otro dispositivo»), pégalo aquí o abre el enlace/QR que te compartan.</div>' +
+      '<div class="fld-tit" style="margin-top:12px">¿Primera vez? Crea el vínculo con tu GitHub</div>' +
       '<ol style="color:var(--muted);font-size:.83rem;line-height:1.7;margin:0 0 12px 18px">' +
       '<li>Abre <a href="https://github.com/settings/tokens/new?scopes=gist&description=Torneos%20de%20Futbol" target="_blank" rel="noopener" style="color:var(--info)">github.com/settings/tokens/new</a> (el permiso «gist» ya viene marcado).</li>' +
       '<li>En «Expiration» elige <b>No expiration</b> y toca <b>Generate token</b>.</li>' +
-      '<li>Copia el token (empieza con <b>ghp_</b>) y pégalo aquí:</li></ol>' +
-      '<input class="inp" id="sync-token" type="password" autocomplete="off" placeholder="ghp_…">' +
-      '<button class="btn btn-primary btn-block" style="margin-top:10px" data-a="sync-vincular">🔗 Vincular cuenta</button>' +
+      '<li>Copia el token (empieza con <b>ghp_</b>).</li></ol>' +
+      '<input class="inp" id="sync-token" type="password" autocomplete="off" placeholder="Pega aquí tu token o un código de vinculación">' +
+      '<button class="btn btn-primary btn-block" style="margin-top:10px" data-a="sync-vincular">🔗 Vincular</button>' +
       '<div style="color:var(--muted);font-size:.75rem;margin-top:10px">El token solo se guarda en este dispositivo y únicamente puede leer/escribir tus Gists.</div>';
   }
   return html + '</div>';
@@ -1424,7 +1503,28 @@ var acciones = {
   /* ----- sincronización ----- */
   'sync-vincular': function () {
     var inp = document.getElementById('sync-token');
-    vincularCuenta(inp && inp.value);
+    var valor = (inp && inp.value || '').trim();
+    var vinculo = decodificarVinculo(valor);
+    if (vinculo) vincularConCodigo(vinculo);
+    else vincularCuenta(valor);
+  },
+  'sync-ver-vinculo': function () {
+    st.verVinculo = !st.verVinculo;
+    render(true);
+  },
+  'sync-compartir-enlace': function () {
+    var enlace = enlaceVinculo();
+    if (!enlace) return;
+    if (navigator.share) {
+      navigator.share({ title: 'Torneos de Fútbol', text: 'Vincúlate a mis torneos ⚽', url: enlace })
+        .catch(function () { });
+    } else {
+      copiarTexto(enlace, 'Enlace copiado ✔️ Envíalo al otro dispositivo');
+    }
+  },
+  'sync-copiar-codigo': function () {
+    var codigo = codigoVinculo();
+    if (codigo) copiarTexto(codigo, 'Código copiado ✔️ Pégalo en el otro dispositivo');
   },
   'sync-ahora': function () {
     pintarSyncEstado('Sincronizando…');
@@ -1508,7 +1608,16 @@ cargarDB();
 db.torneos.forEach(function (t) { try { sincronizarTorneo(t, nombreEq); } catch (e) { console.warn(e); } });
 guardar(true);
 render();
-if (sincVinculada()) bajarNube(false);
+// enlace/QR de vinculación: #vincular=CÓDIGO
+var hashVinculo = location.hash.match(/vincular=([A-Za-z0-9_-]+)/);
+if (hashVinculo) {
+  var datosVinculo = decodificarVinculo(hashVinculo[1]);
+  try { history.replaceState(null, '', location.pathname + location.search); } catch (e) { }
+  if (datosVinculo) vincularConCodigo(datosVinculo);
+  else avisar('El enlace de vinculación no es válido.');
+} else if (sincVinculada()) {
+  bajarNube(false);
+}
 // al volver a la app (cambio de pestaña/dispositivo), buscar novedades en la nube
 document.addEventListener('visibilitychange', function () {
   if (!document.hidden && sincVinculada() && Date.now() - syncUltimoPull > 30000) bajarNube(false);

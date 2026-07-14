@@ -49,7 +49,7 @@ window.addEventListener('error', function (e) {
 </script>
 <script>
 MID
-  cat js/data.js js/escudos.js js/escudos-extra.js js/logic.js js/app.js
+  cat js/data.js js/escudos.js js/escudos-extra.js js/qr.js js/logic.js js/app.js
   cat <<'TAIL'
 </script>
 </body>

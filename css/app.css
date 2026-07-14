@@ -411,6 +411,17 @@ tr.lider-final{background:rgba(245,185,64,.07)}
 .eq-sorteo.marcado{border-color:var(--warn);background:rgba(245,185,64,.1)}
 .hint-swap{font-size:.78rem;color:var(--muted);margin:8px 0 12px;text-align:center}
 
+/* ---------- Vinculación de dispositivos ---------- */
+.vinculo-box{
+  margin-top:12px;padding-top:4px;border-top:1px dashed rgba(38,56,94,.65);
+  text-align:center;
+}
+.qr-marco{
+  display:inline-block;background:#fff;padding:10px;border-radius:14px;margin-top:8px;
+  line-height:0;
+}
+.qr-marco svg{display:block;width:190px;height:190px}
+
 /* ---------- Toast y modal ---------- */
 #toast{
   position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);

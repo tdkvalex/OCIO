@@ -41,6 +41,11 @@ No necesita servidor ni conexión: es HTML/CSS/JS puro y guarda todo en el dispo
   (subida automática al hacer cambios, bajada al abrir o volver a la app;
   gana el que tenga los datos más recientes). El token nunca sale del
   dispositivo ni se incluye en exportaciones.
+- **Vincular otro dispositivo en segundos**: desde un dispositivo ya vinculado,
+  «📲 Vincular otro dispositivo» genera un **código QR**, un **enlace** y un
+  **código** para pegar; el otro dispositivo queda vinculado al abrirlo y
+  sincroniza automáticamente (puede registrar resultados). Comparte el código
+  solo con quien lleve el torneo contigo: da acceso de edición.
 
 ## Cómo usarla
 
