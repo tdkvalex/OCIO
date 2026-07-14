@@ -9,6 +9,9 @@ on:
         description: 'Descargar también escudos de federaciones nacionales'
         type: boolean
         default: false
+  push:
+    branches: [main]
+    paths: ['.actualizar-escudos']
 
 permissions:
   contents: write
@@ -24,7 +27,7 @@ jobs:
           node-version: 20
 
       - name: Descargar escudos desde TheSportsDB
-        run: node tools/descargar-escudos.mjs ${{ inputs.selecciones && '--selecciones' || '' }}
+        run: node tools/descargar-escudos.mjs ${{ (github.event_name == 'workflow_dispatch' && inputs.selecciones) && '--selecciones' || '' }}
 
       - name: Regenerar archivo único (dist)
         run: ./build.sh
