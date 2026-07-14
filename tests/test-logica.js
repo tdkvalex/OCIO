@@ -190,6 +190,39 @@ function simular(t, semilla) {
   ok(!!t.campeon && !!t.tercero, 'elim: campeón y tercero definidos');
 }
 
+/* ---------- fusión de datos entre dispositivos ---------- */
+{
+  const { fusionarNube } = ctx;
+  const t = (id, mod, creado) => ({ id, mod, creado: creado || '2026-01-0' + id.slice(-1) });
+
+  // unión: el torneo creado en la PC aparece aunque el teléfono no lo tenga
+  let r = fusionarNube([t('a1', 100)], {}, { torneos: [t('a1', 100), t('b2', 200)], borrados: {} });
+  ok(r.torneos.length === 2, 'fusión: unión de torneos de ambos lados');
+  ok(r.cambioLocal === true, 'fusión: detecta cambio visible local');
+
+  // y al revés: lo local que falta en la nube se conserva y se marca para subir
+  r = fusionarNube([t('a1', 100), t('c3', 300)], {}, { torneos: [t('a1', 100)], borrados: {} });
+  ok(r.torneos.length === 2 && r.aporteLocal === true, 'fusión: lo local que falta en la nube se conserva y sube');
+
+  // por cada torneo gana la versión con mod más reciente
+  const viejo = { ...t('a1', 100), nombre: 'viejo' };
+  const nuevo = { ...t('a1', 500), nombre: 'nuevo' };
+  r = fusionarNube([viejo], {}, { torneos: [nuevo], borrados: {} });
+  ok(r.torneos[0].nombre === 'nuevo', 'fusión: gana la versión más nueva (remota)');
+  r = fusionarNube([nuevo], {}, { torneos: [viejo], borrados: {} });
+  ok(r.torneos[0].nombre === 'nuevo' && r.aporteLocal, 'fusión: gana la versión más nueva (local) y se sube');
+
+  // un borrado remoto elimina el torneo local (si no fue modificado después)
+  r = fusionarNube([t('a1', 100)], {}, { torneos: [], borrados: { a1: 200 } });
+  ok(r.torneos.length === 0, 'fusión: borrado remoto elimina el torneo');
+  // pero una modificación posterior al borrado lo revive
+  r = fusionarNube([t('a1', 300)], {}, { torneos: [], borrados: { a1: 200 } });
+  ok(r.torneos.length === 1, 'fusión: modificación posterior al borrado lo conserva');
+  // y un borrado local se propaga
+  r = fusionarNube([], { b2: 999 }, { torneos: [t('b2', 200)], borrados: {} });
+  ok(r.torneos.length === 0 && r.aporteLocal === true, 'fusión: borrado local se propaga a la nube');
+}
+
 /* ---------- validaciones ---------- */
 {
   ok(validarConfiguracion('grupos-elim', { numGrupos: 4, clasifican: 2, vueltas: 1 }, 15).length > 0, 'rechaza 15 equipos en 4 grupos');

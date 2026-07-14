@@ -344,6 +344,55 @@ function validarConfiguracion(formato, cfg, nEquipos) {
   return err;
 }
 
+/* =========================================================================
+   FUSIÓN DE DATOS ENTRE DISPOSITIVOS (torneo por torneo)
+   - Unión de torneos locales y remotos; por cada id gana el de `mod` mayor.
+   - `borrados` propaga eliminaciones: {idTorneo: fechaBorrado}. Un borrado
+     elimina el torneo salvo que este haya sido modificado DESPUÉS.
+   Devuelve además si hubo cambios visibles locales y si lo local aporta
+   algo que la nube no tiene (→ hay que subir).
+   ========================================================================= */
+function fusionarNube(localTorneos, localBorrados, remoto) {
+  var rb = (remoto && remoto.borrados) || {};
+  var lb = localBorrados || {};
+  var borrados = {}, k;
+  for (k in rb) borrados[k] = rb[k];
+  var aporteLocal = false;
+  for (k in lb) {
+    if (!borrados[k] || lb[k] > borrados[k]) borrados[k] = lb[k];
+    if (!rb[k] || lb[k] > rb[k]) aporteLocal = true;
+  }
+  var porId = {}, orden = [];
+  ((remoto && remoto.torneos) || []).forEach(function (t) {
+    if (t && t.id && !porId[t.id]) { porId[t.id] = t; orden.push(t.id); }
+  });
+  (localTorneos || []).forEach(function (t) {
+    if (!t || !t.id) return;
+    var r = porId[t.id];
+    if (!r) { porId[t.id] = t; orden.push(t.id); aporteLocal = true; }
+    else if ((t.mod || 0) > (r.mod || 0)) { porId[t.id] = t; aporteLocal = true; }
+  });
+  var torneos = [];
+  orden.forEach(function (id) {
+    var t = porId[id];
+    if (borrados[id] && borrados[id] >= (t.mod || 0)) return; // borrado vigente
+    torneos.push(t);
+  });
+  torneos.sort(function (a, b) { return String(a.creado || '').localeCompare(String(b.creado || '')); });
+  // limpiar borrados muy antiguos (90 días)
+  var limite = Date.now() - 90 * 86400000;
+  Object.keys(borrados).forEach(function (id) { if (borrados[id] < limite) delete borrados[id]; });
+  var firma = function (lista) {
+    return lista.map(function (t) { return t.id + ':' + (t.mod || 0); }).join('|');
+  };
+  return {
+    torneos: torneos,
+    borrados: borrados,
+    cambioLocal: firma(localTorneos || []) !== firma(torneos),
+    aporteLocal: aporteLocal
+  };
+}
+
 /* ---------- Estadísticas generales ---------- */
 function estadisticasTorneo(torneo, nombreDe) {
   var jugados = torneo.partidos.filter(function (p) { return p.fin && p.gl !== null; });

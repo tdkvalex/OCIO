@@ -595,6 +595,7 @@ function materializarTorneo() {
       t.partidos = t.formato === 'elim' ? [] : generarPartidosGrupos(t);
       t.campeon = t.subcampeon = t.tercero = null;
     }
+    tocar(t);
     sincronizarTorneo(t, nombreEq);
     if (!existente) db.torneos.push(t);
     guardar();
@@ -623,7 +624,7 @@ function vTorneo() {
   var t = torneoActual();
   if (!t) { st.vista = 'inicio'; return vInicio(); }
   var estructura = sincronizarTorneo(t, nombreEq);
-  guardar();
+  guardar(true); // solo mirar el torneo no cuenta como cambio para la nube
 
   var insigniaT = t.plantilla && insigniaHTML('t-' + t.plantilla);
 
@@ -968,6 +969,7 @@ function finalizarPartido(m, silencioso) {
   m.fin = true;
   delete timers[m.id];
   delete st.pitazos[m.id];
+  tocar(t);
   sincronizarTorneo(t, nombreEq);
   var elimDespues = t.partidos.filter(function (p) { return p.tipo === 'elim'; }).length;
   guardar();
@@ -1000,6 +1002,7 @@ function reabrirPartido(m) {
   var seguir = function () {
     m.fin = false;
     m.pl = null; m.pv = null;
+    tocar(t);
     sincronizarTorneo(t, nombreEq);
     guardar();
     render(true);
@@ -1028,7 +1031,13 @@ function sincVinculada() {
   return !!(db.sync && db.sync.token && db.sync.gistId);
 }
 function datosParaNube() {
-  return JSON.stringify({ torneos: db.torneos, timerMin: db.timerMin || 10, actualizado: db.actualizado || 0 });
+  return JSON.stringify({
+    torneos: db.torneos, borrados: db.borrados || {},
+    timerMin: db.timerMin || 10, actualizado: db.actualizado || 0
+  });
+}
+function tocar(t) {
+  if (t) t.mod = Date.now();
 }
 function apiGH(metodo, ruta, cuerpo, token) {
   return fetch('https://api.github.com' + ruta, {
@@ -1070,34 +1079,41 @@ function subirNube() {
     })
     .then(function () { syncOcupado = false; });
 }
-function aplicarRemoto(remoto) {
-  db.torneos = remoto.torneos || [];
-  if (remoto.timerMin) db.timerMin = remoto.timerMin;
-  db.actualizado = remoto.actualizado || Date.now();
-  db.torneos.forEach(function (t) { try { sincronizarTorneo(t, nombreEq); } catch (e) { } });
-  guardar(true);
-}
 function bajarNube(interactivo) {
   if (!sincVinculada()) return Promise.resolve();
   syncUltimoPull = Date.now();
   return apiGH('GET', '/gists/' + db.sync.gistId).then(function (g) {
     var archivo = g.files && g.files[ARCHIVO_SYNC];
-    if (!archivo) return;
+    if (!archivo) { programarPush(); return; }
     var listo = archivo.truncated
       ? fetch(archivo.raw_url).then(function (r) { return r.text(); })
       : Promise.resolve(archivo.content);
     return listo.then(function (crudo) {
-      var remoto;
-      try { remoto = JSON.parse(crudo); } catch (e) { return; }
-      if (!remoto || !Array.isArray(remoto.torneos)) return;
-      if ((remoto.actualizado || 0) > (db.actualizado || 0)) {
-        aplicarRemoto(remoto);
+      var remoto = null;
+      try { remoto = JSON.parse(crudo); } catch (e) { }
+      if (!remoto || !Array.isArray(remoto.torneos)) {
+        if (db.torneos.length) programarPush();
+        return;
+      }
+      // fusión torneo por torneo: unión de ambos lados, gana el más nuevo de cada uno
+      var r = fusionarNube(db.torneos, db.borrados, remoto);
+      db.torneos = r.torneos;
+      db.borrados = r.borrados;
+      if (remoto.timerMin && (remoto.actualizado || 0) > (db.actualizado || 0)) db.timerMin = remoto.timerMin;
+      db.actualizado = Math.max(db.actualizado || 0, remoto.actualizado || 0);
+      if (r.cambioLocal) {
+        db.torneos.forEach(function (t) { try { sincronizarTorneo(t, nombreEq); } catch (e) { } });
+      }
+      guardar(true);
+      if (r.cambioLocal) {
         render(true);
-        avisar('☁️ Datos actualizados desde la nube');
-      } else if ((db.actualizado || 0) > (remoto.actualizado || 0)) {
+        avisar('☁️ Torneos actualizados desde la nube');
+      }
+      if (r.aporteLocal) {
         programarPush();
-      } else if (interactivo) {
+      } else if (interactivo && !r.cambioLocal) {
         pintarSyncEstado('Al día ✓');
+        avisar('Todo sincronizado ✓');
       }
     });
   }).catch(function (e) {
@@ -1163,7 +1179,6 @@ function vincularConCodigo(o) {
   apiGH('GET', '/user', null, o.t)
     .then(function (u) {
       db.sync = { token: o.t, gistId: o.g, usuario: u.login, ultimo: null };
-      if (!db.torneos.length) db.actualizado = 0; // dispositivo nuevo: ganan los datos de la nube
       guardar(true);
       avisar('✅ Dispositivo vinculado a ' + u.login);
       return bajarNube(false);
@@ -1264,9 +1279,12 @@ function importarDatos(archivo) {
         'Se reemplazarán tus torneos actuales (' + db.torneos.length + ') por los del archivo (' + datos.torneos.length + ').',
         'Importar', true).then(function (ok) {
           if (!ok) return;
-          var vinculo = db.sync || null; // conservar la cuenta vinculada
+          var vinculo = db.sync || null;      // conservar la cuenta vinculada
+          var borradosPrev = db.borrados || {};
+          datos.torneos.forEach(function (x) { x.mod = Date.now(); }); // lo importado manda
           db = datos;
           db.sync = vinculo;
+          db.borrados = borradosPrev;
           guardar();
           st.vista = 'inicio';
           render();
@@ -1455,6 +1473,7 @@ var acciones = {
       .then(function (ok) {
         if (!ok) return;
         t.partidos.forEach(function (p) { p.gl = null; p.gv = null; p.pl = null; p.pv = null; p.fin = false; });
+        tocar(t);
         sincronizarTorneo(t, nombreEq);
         guardar();
         delete st.fases[t.id];
@@ -1467,6 +1486,8 @@ var acciones = {
     confirmar('Eliminar torneo', 'Se eliminará «' + t.nombre + '» definitivamente.', 'Eliminar', true)
       .then(function (ok) {
         if (!ok) return;
+        db.borrados = db.borrados || {};
+        db.borrados[t.id] = Date.now(); // propaga el borrado a los demás dispositivos
         db.torneos = db.torneos.filter(function (x) { return x.id !== t.id; });
         guardar();
         st.vista = 'inicio'; st.torneoId = null;
@@ -1528,7 +1549,7 @@ var acciones = {
   },
   'sync-ahora': function () {
     pintarSyncEstado('Sincronizando…');
-    bajarNube(true).then(function () { subirNube(); });
+    bajarNube(true);
   },
   'sync-desvincular': function () {
     confirmar('Desvincular cuenta',
@@ -1570,6 +1591,7 @@ document.addEventListener('input', function (e) {
     if (!m || m.fin) return;
     var v = el.value === '' ? null : Math.max(0, Math.min(99, parseInt(el.value, 10) || 0));
     m[el.dataset.campo] = v;
+    tocar(torneoActual());
     guardar();
   }
 });
@@ -1618,7 +1640,15 @@ if (hashVinculo) {
 } else if (sincVinculada()) {
   bajarNube(false);
 }
-// al volver a la app (cambio de pestaña/dispositivo), buscar novedades en la nube
+// al ocultar la app: subir de inmediato lo pendiente; al volver: buscar novedades
 document.addEventListener('visibilitychange', function () {
-  if (!document.hidden && sincVinculada() && Date.now() - syncUltimoPull > 30000) bajarNube(false);
+  if (document.hidden) {
+    if (sincVinculada() && pushTimer) { clearTimeout(pushTimer); subirNube(); }
+  } else if (sincVinculada() && Date.now() - syncUltimoPull > 30000) {
+    bajarNube(false);
+  }
 });
+// bajada periódica mientras la app está abierta (cambios hechos en otro dispositivo)
+setInterval(function () {
+  if (sincVinculada() && !document.hidden && Date.now() - syncUltimoPull > 55000) bajarNube(false);
+}, 60000);
