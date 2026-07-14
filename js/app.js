@@ -59,6 +59,13 @@ var st = {
 function escudoDe(clave) {
   return (typeof ESCUDOS !== 'undefined' && ESCUDOS[clave]) || null;
 }
+/* Insignia lista para insertar como HTML: SVG en línea o <img> si es data-URI */
+function insigniaHTML(clave) {
+  var v = escudoDe(clave);
+  if (!v) return null;
+  if (v.charAt(0) === '<') return v;
+  return '<img src="' + v + '" alt="">';
+}
 function crestHTML(id, grande) {
   var eq = typeof id === 'string' ? equipoDe(id) : id;
   if (!eq) return '<span class="crest flag' + (grande ? ' lg' : '') + '">⬜</span>';
@@ -234,7 +241,7 @@ function vInicio() {
 
   html += '<div class="section-title">Torneos existentes (plantillas)</div><div class="plantillas">';
   DATOS.PLANTILLAS.forEach(function (p) {
-    var insignia = escudoDe('t-' + p.id);
+    var insignia = insigniaHTML('t-' + p.id);
     var icono = insignia
       ? '<span class="ic insignia">' + insignia + '</span>'
       : '<span class="ic">' + p.icono + '</span>';
@@ -255,7 +262,7 @@ function vInicio() {
       var estado = t.campeon
         ? '<span class="badge badge-fin">🏆 Campeón: ' + esc(nombreEq(t.campeon)) + '</span>'
         : '<span class="badge badge-live">En curso · ' + jugados + '/' + total + ' partidos</span>';
-      var insigniaT = t.plantilla && escudoDe('t-' + t.plantilla);
+      var insigniaT = t.plantilla && insigniaHTML('t-' + t.plantilla);
       html += '<div class="card torneo-card" data-a="abrir-torneo" data-id="' + t.id + '">' +
         '<div class="ic' + (insigniaT ? ' insignia' : '') + '">' + (insigniaT || t.icono || '🏆') + '</div>' +
         '<div class="info"><div class="nm">' + esc(t.nombre) + '</div>' +
@@ -612,7 +619,7 @@ function vTorneo() {
   var estructura = sincronizarTorneo(t, nombreEq);
   guardar();
 
-  var insigniaT = t.plantilla && escudoDe('t-' + t.plantilla);
+  var insigniaT = t.plantilla && insigniaHTML('t-' + t.plantilla);
 
   var tabs = [];
   if (t.formato !== 'elim') tabs.push(['posiciones', 'Posiciones']);
