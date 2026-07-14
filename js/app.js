@@ -122,8 +122,8 @@ function cerrarModal(respuesta) {
    VISTA: INICIO
    ========================================================================= */
 function vInicio() {
-  var html = '<div class="topbar"><h1><span>⚽</span><span class="tt">Torneos de Fútbol</span></h1><div class="spacer"></div>' +
-    '<button class="btn btn-primary btn-sm" data-a="nuevo-torneo">+ Nuevo</button></div>';
+  var html = '<div class="cabecera"><div class="topbar"><h1><span>⚽</span><span class="tt">Torneos de Fútbol</span></h1><div class="spacer"></div>' +
+    '<button class="btn btn-primary btn-sm" data-a="nuevo-torneo">+ Nuevo</button></div></div>';
 
   if (!almacenOK) {
     html += '<div class="aviso">⚠️ <div>El almacenamiento local no está disponible: los datos se perderán al cerrar. Usa «Exportar» para guardar una copia.</div></div>';
@@ -238,8 +238,8 @@ function wizardNecesitaSorteo() {
 function vWizard() {
   var w = st.wizard, d = w.datos;
   var totalPasos = wizardNecesitaSorteo() ? 3 : 2;
-  var html = '<div class="topbar"><button class="btn-back" data-a="w-cancelar">‹</button>' +
-    '<h1><span class="tt">' + (w.editandoId ? 'Editar torneo' : 'Nuevo torneo') + '</span></h1></div>';
+  var html = '<div class="cabecera"><div class="topbar"><button class="btn-back" data-a="w-cancelar">‹</button>' +
+    '<h1><span class="tt">' + (w.editandoId ? 'Editar torneo' : 'Nuevo torneo') + '</span></h1></div></div>';
   html += '<div class="pasos">';
   for (var i = 1; i <= totalPasos; i++) html += '<i class="' + (i <= w.paso ? 'on' : '') + '"></i>';
   html += '</div>';
@@ -513,9 +513,6 @@ function vTorneo() {
   guardar();
 
   var insigniaT = t.plantilla && escudoDe('t-' + t.plantilla);
-  var html = '<div class="topbar"><button class="btn-back" data-a="ir-inicio">‹</button>' +
-    '<h1>' + (insigniaT ? '<span class="insignia-top">' + insigniaT + '</span>' : '<span>' + (t.icono || '🏆') + '</span>') +
-    '<span class="tt">' + esc(t.nombre) + '</span></h1><div class="spacer"></div></div>';
 
   var tabs = [];
   if (t.formato !== 'elim') tabs.push(['posiciones', 'Posiciones']);
@@ -525,9 +522,13 @@ function vTorneo() {
   tabs.push(['ajustes', 'Ajustes']);
   if (!tabs.some(function (x) { return x[0] === st.tab; })) st.tab = tabs[0][0];
 
-  html += '<div class="tabs">' + tabs.map(function (x) {
-    return '<button class="tab ' + (st.tab === x[0] ? 'on' : '') + '" data-a="tab" data-t="' + x[0] + '">' + x[1] + '</button>';
-  }).join('') + '</div>';
+  var html = '<div class="cabecera">' +
+    '<div class="topbar"><button class="btn-back" data-a="ir-inicio">‹</button>' +
+    '<h1>' + (insigniaT ? '<span class="insignia-top">' + insigniaT + '</span>' : '<span>' + (t.icono || '🏆') + '</span>') +
+    '<span class="tt">' + esc(t.nombre) + '</span></h1><div class="spacer"></div></div>' +
+    '<div class="tabs">' + tabs.map(function (x) {
+      return '<button class="tab ' + (st.tab === x[0] ? 'on' : '') + '" data-a="tab" data-t="' + x[0] + '">' + x[1] + '</button>';
+    }).join('') + '</div></div>';
 
   if (t.campeon) {
     html += '<div class="campeon-banner"><div class="cup">🏆</div><div class="t">Campeón</div>' +
@@ -933,12 +934,17 @@ function importarDatos(archivo) {
 /* =========================================================================
    RENDER + EVENTOS
    ========================================================================= */
+var claveVistaAnterior = '';
 function render(preservarScroll) {
   var y = window.scrollY || 0;
   var app = document.getElementById('app');
   if (st.vista === 'wizard') app.innerHTML = vWizard();
   else if (st.vista === 'torneo') app.innerHTML = vTorneo();
   else app.innerHTML = vInicio();
+  // animación de entrada solo al cambiar de pantalla/pestaña (no al escribir marcadores)
+  var clave = st.vista + '|' + st.tab + '|' + (st.torneoId || '') + '|' + (st.wizard ? st.wizard.paso : '');
+  app.className = clave !== claveVistaAnterior ? 'anim' : '';
+  claveVistaAnterior = clave;
   window.scrollTo(0, preservarScroll ? y : 0);
 }
 function renderParcialEquipos() {

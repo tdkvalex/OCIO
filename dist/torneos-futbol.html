@@ -25,6 +25,7 @@
   --info:#57a9f5;
   --radius:14px;
   --shadow:0 6px 24px rgba(0,0,0,.35);
+  --alto-cabecera:calc(58px + env(safe-area-inset-top, 0px));
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{-webkit-text-size-adjust:100%}
@@ -44,13 +45,20 @@ input,select{font:inherit;color:inherit}
 
 #app{max-width:860px;margin:0 auto;padding:0 14px 90px}
 
-/* ---------- Cabecera ---------- */
+/* ---------- Cabecera fija (respeta el notch / área segura) ---------- */
+.cabecera{
+  position:sticky;top:0;z-index:50;
+  margin:0 -14px;
+  padding:calc(6px + env(safe-area-inset-top, 0px)) 14px 0;
+  background:rgba(11,18,34,.88);
+  -webkit-backdrop-filter:saturate(1.4) blur(18px);
+  backdrop-filter:saturate(1.4) blur(18px);
+  border-bottom:1px solid rgba(38,56,94,.75);
+  box-shadow:0 12px 30px rgba(0,0,0,.35);
+}
 .topbar{
-  position:sticky;top:0;z-index:40;
   display:flex;align-items:center;gap:10px;
-  padding:12px 2px 10px;
-  background:linear-gradient(180deg, rgba(10,17,32,.97) 70%, rgba(10,17,32,0));
-  backdrop-filter:blur(6px);
+  padding:6px 0 10px;
 }
 .topbar h1{font-size:1.15rem;font-weight:800;letter-spacing:.2px;display:flex;align-items:center;gap:8px;min-width:0}
 .topbar h1 .tt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -58,7 +66,9 @@ input,select{font:inherit;color:inherit}
   flex:none;width:40px;height:40px;border-radius:12px;
   background:var(--surface);border:1px solid var(--border);
   font-size:1.1rem;display:flex;align-items:center;justify-content:center;
+  transition:transform .12s, border-color .15s;
 }
+.btn-back:active{transform:scale(.9)}
 .topbar .spacer{flex:1}
 
 /* ---------- Botones ---------- */
@@ -70,7 +80,10 @@ input,select{font:inherit;color:inherit}
   min-height:44px;
 }
 .btn:active{transform:scale(.97)}
-.btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#04220f;border:none}
+.btn-primary{
+  background:linear-gradient(135deg,var(--accent),var(--accent2));color:#04220f;border:none;
+  box-shadow:0 6px 18px rgba(47,208,107,.28);
+}
 .btn-danger{background:rgba(240,86,79,.12);color:#ff8f8a;border-color:rgba(240,86,79,.4)}
 .btn-ghost{background:transparent}
 .btn-sm{padding:7px 12px;min-height:34px;font-size:.85rem;border-radius:10px}
@@ -91,11 +104,15 @@ input,select{font:inherit;color:inherit}
 
 /* ---------- Inicio ---------- */
 .hero{
-  text-align:center;padding:26px 10px 18px;
+  text-align:center;padding:28px 10px 20px;
 }
-.hero .ball{font-size:2.6rem}
-.hero h2{font-size:1.5rem;font-weight:900;margin-top:4px}
-.hero p{color:var(--muted);font-size:.92rem;margin-top:4px}
+.hero .ball{font-size:2.8rem;display:inline-block;animation:flotar 3.8s ease-in-out infinite;filter:drop-shadow(0 10px 18px rgba(47,208,107,.25))}
+.hero h2{
+  font-size:1.65rem;font-weight:900;margin-top:6px;letter-spacing:-.02em;
+  background:linear-gradient(100deg,#fff 30%,#8ff0b4 70%,#57a9f5);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.hero p{color:var(--muted);font-size:.92rem;margin-top:5px}
 
 .plantillas{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
 .plantilla{
@@ -104,7 +121,14 @@ input,select{font:inherit;color:inherit}
   padding:12px;text-align:left;display:flex;flex-direction:column;gap:4px;
   transition:border-color .15s;
 }
-.plantilla:active{border-color:var(--accent)}
+.plantilla:active{border-color:var(--accent);transform:scale(.965)}
+.plantilla{transition:transform .12s, border-color .15s}
+@media (hover:hover){
+  .plantilla:hover{border-color:rgba(47,208,107,.55);transform:translateY(-2px)}
+  .torneo-card:hover{border-color:rgba(87,169,245,.5)}
+}
+.torneo-card{transition:transform .12s, border-color .15s}
+.torneo-card:active{transform:scale(.98)}
 .plantilla .ic{font-size:1.6rem}
 .plantilla .nm{font-weight:800;font-size:.9rem;line-height:1.2}
 .plantilla .ds{color:var(--muted);font-size:.75rem}
@@ -120,10 +144,14 @@ input,select{font:inherit;color:inherit}
 .torneo-card .estado{font-size:.75rem;font-weight:700;margin-top:5px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .badge{display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border-radius:99px;font-size:.72rem;font-weight:800}
 .badge-live{background:var(--accent-dim);color:var(--accent)}
+.badge-live::before{
+  content:"";width:6px;height:6px;border-radius:50%;background:var(--accent);
+  animation:latido 1.6s ease-in-out infinite;
+}
 .badge-fin{background:rgba(245,185,64,.14);color:var(--warn)}
 .badge-gray{background:var(--surface2);color:var(--muted)}
 .progress{height:5px;border-radius:99px;background:var(--surface2);margin-top:7px;overflow:hidden}
-.progress i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--accent),var(--info))}
+.progress i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--accent),var(--info));transition:width .7s cubic-bezier(.2,.7,.3,1)}
 
 .vacio{
   text-align:center;color:var(--muted);padding:26px 12px;
@@ -174,7 +202,7 @@ select.inp{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns
 .wizard-nav .btn{flex:1}
 
 /* ---------- Selector de equipos ---------- */
-.buscador{position:sticky;top:60px;z-index:30;padding:4px 0 10px;background:linear-gradient(180deg,var(--bg) 75%,transparent)}
+.buscador{position:sticky;top:var(--alto-cabecera);z-index:30;padding:6px 0 10px;background:linear-gradient(180deg,var(--bg) 78%,transparent)}
 .buscador .inp{padding-left:40px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%2393a4bf' stroke-width='2'%3E%3Ccircle cx='7' cy='7' r='5'/%3E%3Cpath d='M11 11l4 4'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:13px center}
 .sel-resumen{
   display:flex;align-items:center;gap:8px;overflow-x:auto;padding:6px 0 10px;
@@ -235,24 +263,33 @@ select.inp{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns
 }
 .insignia-top svg{width:100%;height:100%}
 
-/* ---------- Pestañas del torneo ---------- */
+/* ---------- Pestañas del torneo (dentro de la cabecera fija) ---------- */
 .tabs{
-  position:sticky;top:58px;z-index:35;display:flex;gap:4px;overflow-x:auto;
-  background:var(--bg);padding:6px 0 8px;scrollbar-width:none;-webkit-overflow-scrolling:touch;
+  display:flex;gap:5px;overflow-x:auto;
+  padding:0 0 10px;scrollbar-width:none;-webkit-overflow-scrolling:touch;
 }
 .tabs::-webkit-scrollbar{display:none}
 .tab{
   flex:none;padding:8px 15px;border-radius:99px;font-weight:700;font-size:.86rem;
   color:var(--muted);background:var(--surface);border:1px solid var(--border);
+  transition:color .18s, background .18s, transform .12s;
 }
-.tab.on{color:#04220f;background:linear-gradient(135deg,var(--accent),var(--accent2));border-color:transparent}
+.tab:active{transform:scale(.94)}
+.tab.on{color:#04220f;background:linear-gradient(135deg,var(--accent),var(--accent2));border-color:transparent;box-shadow:0 4px 14px rgba(47,208,107,.3)}
 
 .campeon-banner{
-  text-align:center;padding:20px 14px;border-radius:var(--radius);margin-bottom:14px;
+  position:relative;overflow:hidden;
+  text-align:center;padding:22px 14px;border-radius:var(--radius);margin-bottom:14px;
   background:linear-gradient(135deg,rgba(245,185,64,.18),rgba(245,140,40,.08));
   border:1px solid rgba(245,185,64,.45);
 }
-.campeon-banner .cup{font-size:2.4rem}
+.campeon-banner::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.14) 48%,transparent 62%);
+  background-size:260% 100%;
+  animation:destello 3.2s ease-in-out 1s infinite;
+}
+.campeon-banner .cup{font-size:2.5rem;display:inline-block;animation:trofeo .7s cubic-bezier(.2,1.5,.4,1) both}
 .campeon-banner .t{font-size:.78rem;text-transform:uppercase;letter-spacing:.16em;color:var(--warn);font-weight:800;margin-top:2px}
 .campeon-banner .nm{font-size:1.35rem;font-weight:900;margin-top:4px;display:flex;align-items:center;justify-content:center;gap:10px}
 .campeon-banner .pod{color:var(--muted);font-size:.85rem;margin-top:8px;display:flex;justify-content:center;gap:16px;flex-wrap:wrap}
@@ -265,6 +302,8 @@ table.posiciones th{
   letter-spacing:.06em;padding:6px 4px;border-bottom:1px solid var(--border);
 }
 table.posiciones th:nth-child(2){text-align:left}
+table.posiciones{font-variant-numeric:tabular-nums}
+table.posiciones tbody tr:nth-child(even){background:rgba(255,255,255,.022)}
 table.posiciones td{padding:7px 4px;text-align:center;border-bottom:1px solid rgba(38,56,94,.45)}
 table.posiciones tr:last-child td{border-bottom:none}
 table.posiciones td.eq{text-align:left}
@@ -387,6 +426,46 @@ tr.lider-final{background:rgba(245,185,64,.07)}
 /* ---------- pie ---------- */
 .pie{margin-top:26px;text-align:center;color:var(--muted);font-size:.75rem;padding-bottom:10px}
 .pie .datos{display:flex;gap:10px;justify-content:center;margin-bottom:10px}
+
+/* ---------- Animaciones ---------- */
+@keyframes aparecer{
+  from{opacity:0;transform:translateY(14px)}
+  to{opacity:1;transform:none}
+}
+@keyframes flotar{
+  0%,100%{transform:translateY(0) rotate(-6deg)}
+  50%{transform:translateY(-9px) rotate(8deg)}
+}
+@keyframes latido{
+  0%,100%{opacity:1;transform:scale(1)}
+  50%{opacity:.35;transform:scale(.7)}
+}
+@keyframes trofeo{
+  0%{transform:scale(0) rotate(-25deg);opacity:0}
+  70%{transform:scale(1.18) rotate(4deg)}
+  100%{transform:scale(1) rotate(0);opacity:1}
+}
+@keyframes destello{
+  0%{background-position:130% 0}
+  55%,100%{background-position:-130% 0}
+}
+/* entrada escalonada al cambiar de pantalla o pestaña */
+.anim .hero,.anim .card,.anim .plantilla,.anim .stat,.anim .grupo-acordeon,
+.anim .col-ronda,.anim .campeon-banner,.anim .vacio,.anim .section-title,
+.anim .chips-fase,.anim .buscador,.anim .sel-resumen,.anim .grupo-sorteo{
+  animation:aparecer .4s cubic-bezier(.2,.7,.3,1) both;
+}
+.anim .card:nth-child(2),.anim .plantilla:nth-child(2),.anim .stat:nth-child(2),.anim .col-ronda:nth-child(2){animation-delay:.045s}
+.anim .card:nth-child(3),.anim .plantilla:nth-child(3),.anim .stat:nth-child(3),.anim .col-ronda:nth-child(3){animation-delay:.09s}
+.anim .card:nth-child(4),.anim .plantilla:nth-child(4),.anim .stat:nth-child(4),.anim .col-ronda:nth-child(4){animation-delay:.135s}
+.anim .card:nth-child(5),.anim .plantilla:nth-child(5),.anim .stat:nth-child(5),.anim .col-ronda:nth-child(5){animation-delay:.18s}
+.anim .card:nth-child(6),.anim .plantilla:nth-child(6),.anim .stat:nth-child(6){animation-delay:.225s}
+.anim .card:nth-child(7),.anim .plantilla:nth-child(7),.anim .stat:nth-child(7){animation-delay:.27s}
+.anim .card:nth-child(n+8),.anim .plantilla:nth-child(n+8),.anim .stat:nth-child(n+8){animation-delay:.31s}
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
 
 @media (min-width:640px){
   .opciones{grid-template-columns:repeat(4,1fr)}
@@ -1979,8 +2058,8 @@ function cerrarModal(respuesta) {
    VISTA: INICIO
    ========================================================================= */
 function vInicio() {
-  var html = '<div class="topbar"><h1><span>⚽</span><span class="tt">Torneos de Fútbol</span></h1><div class="spacer"></div>' +
-    '<button class="btn btn-primary btn-sm" data-a="nuevo-torneo">+ Nuevo</button></div>';
+  var html = '<div class="cabecera"><div class="topbar"><h1><span>⚽</span><span class="tt">Torneos de Fútbol</span></h1><div class="spacer"></div>' +
+    '<button class="btn btn-primary btn-sm" data-a="nuevo-torneo">+ Nuevo</button></div></div>';
 
   if (!almacenOK) {
     html += '<div class="aviso">⚠️ <div>El almacenamiento local no está disponible: los datos se perderán al cerrar. Usa «Exportar» para guardar una copia.</div></div>';
@@ -2095,8 +2174,8 @@ function wizardNecesitaSorteo() {
 function vWizard() {
   var w = st.wizard, d = w.datos;
   var totalPasos = wizardNecesitaSorteo() ? 3 : 2;
-  var html = '<div class="topbar"><button class="btn-back" data-a="w-cancelar">‹</button>' +
-    '<h1><span class="tt">' + (w.editandoId ? 'Editar torneo' : 'Nuevo torneo') + '</span></h1></div>';
+  var html = '<div class="cabecera"><div class="topbar"><button class="btn-back" data-a="w-cancelar">‹</button>' +
+    '<h1><span class="tt">' + (w.editandoId ? 'Editar torneo' : 'Nuevo torneo') + '</span></h1></div></div>';
   html += '<div class="pasos">';
   for (var i = 1; i <= totalPasos; i++) html += '<i class="' + (i <= w.paso ? 'on' : '') + '"></i>';
   html += '</div>';
@@ -2370,9 +2449,6 @@ function vTorneo() {
   guardar();
 
   var insigniaT = t.plantilla && escudoDe('t-' + t.plantilla);
-  var html = '<div class="topbar"><button class="btn-back" data-a="ir-inicio">‹</button>' +
-    '<h1>' + (insigniaT ? '<span class="insignia-top">' + insigniaT + '</span>' : '<span>' + (t.icono || '🏆') + '</span>') +
-    '<span class="tt">' + esc(t.nombre) + '</span></h1><div class="spacer"></div></div>';
 
   var tabs = [];
   if (t.formato !== 'elim') tabs.push(['posiciones', 'Posiciones']);
@@ -2382,9 +2458,13 @@ function vTorneo() {
   tabs.push(['ajustes', 'Ajustes']);
   if (!tabs.some(function (x) { return x[0] === st.tab; })) st.tab = tabs[0][0];
 
-  html += '<div class="tabs">' + tabs.map(function (x) {
-    return '<button class="tab ' + (st.tab === x[0] ? 'on' : '') + '" data-a="tab" data-t="' + x[0] + '">' + x[1] + '</button>';
-  }).join('') + '</div>';
+  var html = '<div class="cabecera">' +
+    '<div class="topbar"><button class="btn-back" data-a="ir-inicio">‹</button>' +
+    '<h1>' + (insigniaT ? '<span class="insignia-top">' + insigniaT + '</span>' : '<span>' + (t.icono || '🏆') + '</span>') +
+    '<span class="tt">' + esc(t.nombre) + '</span></h1><div class="spacer"></div></div>' +
+    '<div class="tabs">' + tabs.map(function (x) {
+      return '<button class="tab ' + (st.tab === x[0] ? 'on' : '') + '" data-a="tab" data-t="' + x[0] + '">' + x[1] + '</button>';
+    }).join('') + '</div></div>';
 
   if (t.campeon) {
     html += '<div class="campeon-banner"><div class="cup">🏆</div><div class="t">Campeón</div>' +
@@ -2790,12 +2870,17 @@ function importarDatos(archivo) {
 /* =========================================================================
    RENDER + EVENTOS
    ========================================================================= */
+var claveVistaAnterior = '';
 function render(preservarScroll) {
   var y = window.scrollY || 0;
   var app = document.getElementById('app');
   if (st.vista === 'wizard') app.innerHTML = vWizard();
   else if (st.vista === 'torneo') app.innerHTML = vTorneo();
   else app.innerHTML = vInicio();
+  // animación de entrada solo al cambiar de pantalla/pestaña (no al escribir marcadores)
+  var clave = st.vista + '|' + st.tab + '|' + (st.torneoId || '') + '|' + (st.wizard ? st.wizard.paso : '');
+  app.className = clave !== claveVistaAnterior ? 'anim' : '';
+  claveVistaAnterior = clave;
   window.scrollTo(0, preservarScroll ? y : 0);
 }
 function renderParcialEquipos() {
