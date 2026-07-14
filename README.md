@@ -35,6 +35,12 @@ No necesita servidor ni conexión: es HTML/CSS/JS puro y guarda todo en el dispo
   tercer puesto, campeón 🏆 y estadísticas (goles, promedios, mejor ataque/defensa,
   mayor goleada, tabla general).
 - **Exportar / importar** todos los datos en JSON como respaldo.
+- **Sincronización entre dispositivos**: vincula tu cuenta de GitHub (token con
+  permiso «gist») y tus torneos se guardan en un Gist privado; cualquier
+  dispositivo vinculado con el mismo token los ve y actualiza automáticamente
+  (subida automática al hacer cambios, bajada al abrir o volver a la app;
+  gana el que tenga los datos más recientes). El token nunca sale del
+  dispositivo ni se incluye en exportaciones.
 
 ## Cómo usarla
 

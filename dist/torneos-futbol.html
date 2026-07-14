@@ -2242,7 +2242,11 @@ function cargarDB() {
     console.warn('localStorage no disponible; los datos viven solo en esta sesión.', e);
   }
 }
-function guardar() {
+function guardar(sinSync) {
+  if (!sinSync) {
+    db.actualizado = Date.now();
+    programarPush();
+  }
   if (!almacenOK) return;
   try { localStorage.setItem(CLAVE_DB, JSON.stringify(db)); } catch (e) { /* sin espacio */ }
 }
@@ -2481,11 +2485,13 @@ function vInicio() {
     });
   }
 
+  html += cartaSync();
+
   html += '<div class="pie"><div class="datos">' +
     '<button class="btn btn-sm" data-a="exportar">⬇️ Exportar datos</button>' +
     '<button class="btn btn-sm" data-a="importar">⬆️ Importar</button>' +
     '<input type="file" id="importar-archivo" accept=".json" style="display:none">' +
-    '</div>Los datos se guardan en este dispositivo.</div>';
+    '</div>' + (sincVinculada() ? 'Datos sincronizados con tu cuenta de GitHub.' : 'Los datos se guardan en este dispositivo.') + '</div>';
   return html;
 }
 
@@ -3216,10 +3222,160 @@ function reabrirPartido(m) {
 }
 
 /* =========================================================================
+   SINCRONIZACIÓN EN LA NUBE (Gist privado de GitHub)
+   El "vínculo de cuenta" es un token de GitHub con permiso «gist»: los
+   torneos se guardan en un Gist privado y cualquier dispositivo con el
+   mismo token los ve. El token solo vive en el dispositivo (localStorage).
+   ========================================================================= */
+var ARCHIVO_SYNC = 'torneos-futbol.json';
+var pushTimer = null;
+var syncOcupado = false;
+var syncUltimoPull = 0;
+
+function sincVinculada() {
+  return !!(db.sync && db.sync.token && db.sync.gistId);
+}
+function datosParaNube() {
+  return JSON.stringify({ torneos: db.torneos, timerMin: db.timerMin || 10, actualizado: db.actualizado || 0 });
+}
+function apiGH(metodo, ruta, cuerpo, token) {
+  return fetch('https://api.github.com' + ruta, {
+    method: metodo,
+    headers: {
+      'Authorization': 'Bearer ' + (token || (db.sync && db.sync.token) || ''),
+      'Accept': 'application/vnd.github+json'
+    },
+    body: cuerpo ? JSON.stringify(cuerpo) : undefined
+  }).then(function (r) {
+    if (r.status === 401 || r.status === 403) throw new Error('token');
+    if (!r.ok) throw new Error('GitHub respondió ' + r.status);
+    return r.json();
+  });
+}
+function pintarSyncEstado(texto) {
+  var el = document.querySelector('[data-sync-estado]');
+  if (el) el.textContent = texto;
+}
+function programarPush() {
+  if (!sincVinculada()) return;
+  clearTimeout(pushTimer);
+  pushTimer = setTimeout(subirNube, 2500);
+}
+function subirNube() {
+  if (!sincVinculada() || syncOcupado) return;
+  syncOcupado = true;
+  pintarSyncEstado('Sincronizando…');
+  var archivos = {};
+  archivos[ARCHIVO_SYNC] = { content: datosParaNube() };
+  apiGH('PATCH', '/gists/' + db.sync.gistId, { files: archivos })
+    .then(function () {
+      db.sync.ultimo = Date.now();
+      guardar(true);
+      pintarSyncEstado('Al día ✓');
+    })
+    .catch(function (e) {
+      pintarSyncEstado(e.message === 'token' ? '⚠️ Token inválido' : '⚠️ Sin conexión — se reintentará');
+    })
+    .then(function () { syncOcupado = false; });
+}
+function aplicarRemoto(remoto) {
+  db.torneos = remoto.torneos || [];
+  if (remoto.timerMin) db.timerMin = remoto.timerMin;
+  db.actualizado = remoto.actualizado || Date.now();
+  db.torneos.forEach(function (t) { try { sincronizarTorneo(t, nombreEq); } catch (e) { } });
+  guardar(true);
+}
+function bajarNube(interactivo) {
+  if (!sincVinculada()) return Promise.resolve();
+  syncUltimoPull = Date.now();
+  return apiGH('GET', '/gists/' + db.sync.gistId).then(function (g) {
+    var archivo = g.files && g.files[ARCHIVO_SYNC];
+    if (!archivo) return;
+    var listo = archivo.truncated
+      ? fetch(archivo.raw_url).then(function (r) { return r.text(); })
+      : Promise.resolve(archivo.content);
+    return listo.then(function (crudo) {
+      var remoto;
+      try { remoto = JSON.parse(crudo); } catch (e) { return; }
+      if (!remoto || !Array.isArray(remoto.torneos)) return;
+      if ((remoto.actualizado || 0) > (db.actualizado || 0)) {
+        aplicarRemoto(remoto);
+        render(true);
+        avisar('☁️ Datos actualizados desde la nube');
+      } else if ((db.actualizado || 0) > (remoto.actualizado || 0)) {
+        programarPush();
+      } else if (interactivo) {
+        pintarSyncEstado('Al día ✓');
+      }
+    });
+  }).catch(function (e) {
+    if (interactivo) avisar(e.message === 'token' ? 'El token ya no es válido.' : 'No se pudo conectar con GitHub.');
+  });
+}
+function vincularCuenta(token) {
+  token = (token || '').trim();
+  if (!token) { avisar('Pega tu token de GitHub primero.'); return; }
+  avisar('Verificando cuenta…');
+  var usuario;
+  apiGH('GET', '/user', null, token)
+    .then(function (u) {
+      usuario = u.login;
+      return apiGH('GET', '/gists?per_page=100', null, token);
+    })
+    .then(function (gists) {
+      var mio = (gists || []).find(function (g) { return g.files && g.files[ARCHIVO_SYNC]; });
+      if (mio) return mio.id;
+      var archivos = {};
+      archivos[ARCHIVO_SYNC] = { content: datosParaNube() };
+      return apiGH('POST', '/gists', {
+        description: '⚽ Torneos de Fútbol — datos sincronizados',
+        public: false,
+        files: archivos
+      }, token).then(function (g) { return g.id; });
+    })
+    .then(function (gistId) {
+      db.sync = { token: token, gistId: gistId, usuario: usuario, ultimo: null };
+      guardar(true);
+      avisar('✅ Cuenta vinculada: ' + usuario);
+      return bajarNube(false).then(function () { return subirNube(); });
+    })
+    .then(function () { render(true); })
+    .catch(function (e) {
+      avisar(e.message === 'token'
+        ? 'Token inválido: crea uno con el permiso «gist».'
+        : 'No se pudo vincular: ' + e.message);
+    });
+}
+function cartaSync() {
+  var html = '<div class="section-title">Sincronización entre dispositivos</div><div class="card">';
+  if (sincVinculada()) {
+    var ultimo = db.sync.ultimo ? new Date(db.sync.ultimo).toLocaleString() : '—';
+    html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">☁️ <b>Vinculada como ' + esc(db.sync.usuario) + '</b></div>' +
+      '<div style="color:var(--muted);font-size:.83rem;margin-bottom:12px">Última sincronización: <span data-sync-estado>' + esc(ultimo) + '</span></div>' +
+      '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
+      '<button class="btn btn-sm" data-a="sync-ahora">🔄 Sincronizar ahora</button>' +
+      '<button class="btn btn-sm btn-danger" data-a="sync-desvincular">Desvincular</button></div>' +
+      '<div style="color:var(--muted);font-size:.75rem;margin-top:10px">Tus torneos se guardan en un Gist privado de tu GitHub y se actualizan solos al hacer cambios. Vincula otro dispositivo con el mismo token para verlos ahí.</div>';
+  } else {
+    html += '<div style="font-size:.9rem;line-height:1.6;margin-bottom:10px">☁️ Vincula tu cuenta de <b>GitHub</b> (gratis) para guardar tus torneos en la nube y seguirlos desde cualquier dispositivo.</div>' +
+      '<ol style="color:var(--muted);font-size:.83rem;line-height:1.7;margin:0 0 12px 18px">' +
+      '<li>Abre <a href="https://github.com/settings/tokens/new?scopes=gist&description=Torneos%20de%20Futbol" target="_blank" rel="noopener" style="color:var(--info)">github.com/settings/tokens/new</a> (el permiso «gist» ya viene marcado).</li>' +
+      '<li>En «Expiration» elige <b>No expiration</b> y toca <b>Generate token</b>.</li>' +
+      '<li>Copia el token (empieza con <b>ghp_</b>) y pégalo aquí:</li></ol>' +
+      '<input class="inp" id="sync-token" type="password" autocomplete="off" placeholder="ghp_…">' +
+      '<button class="btn btn-primary btn-block" style="margin-top:10px" data-a="sync-vincular">🔗 Vincular cuenta</button>' +
+      '<div style="color:var(--muted);font-size:.75rem;margin-top:10px">El token solo se guarda en este dispositivo y únicamente puede leer/escribir tus Gists.</div>';
+  }
+  return html + '</div>';
+}
+
+/* =========================================================================
    EXPORTAR / IMPORTAR
    ========================================================================= */
 function exportarDatos() {
-  var blob = new Blob([JSON.stringify(db, null, 1)], { type: 'application/json' });
+  // sin db.sync: el token nunca debe salir del dispositivo
+  var copia = { torneos: db.torneos, timerMin: db.timerMin, actualizado: db.actualizado };
+  var blob = new Blob([JSON.stringify(copia, null, 1)], { type: 'application/json' });
   var a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = 'torneos-futbol.json';
@@ -3237,7 +3393,9 @@ function importarDatos(archivo) {
         'Se reemplazarán tus torneos actuales (' + db.torneos.length + ') por los del archivo (' + datos.torneos.length + ').',
         'Importar', true).then(function (ok) {
           if (!ok) return;
+          var vinculo = db.sync || null; // conservar la cuenta vinculada
           db = datos;
+          db.sync = vinculo;
           guardar();
           st.vista = 'inicio';
           render();
@@ -3471,6 +3629,27 @@ var acciones = {
     render(true);
   },
 
+  /* ----- sincronización ----- */
+  'sync-vincular': function () {
+    var inp = document.getElementById('sync-token');
+    vincularCuenta(inp && inp.value);
+  },
+  'sync-ahora': function () {
+    pintarSyncEstado('Sincronizando…');
+    bajarNube(true).then(function () { subirNube(); });
+  },
+  'sync-desvincular': function () {
+    confirmar('Desvincular cuenta',
+      'Este dispositivo dejará de sincronizar. Tus torneos locales y los de la nube se conservan.',
+      'Desvincular', true).then(function (ok) {
+        if (!ok) return;
+        db.sync = null;
+        guardar(true);
+        render(true);
+        avisar('Cuenta desvinculada.');
+      });
+  },
+
   /* ----- datos ----- */
   'exportar': exportarDatos,
   'importar': function () { document.getElementById('importar-archivo').click(); },
@@ -3535,8 +3714,13 @@ if (typeof ESCUDOS !== 'undefined' && typeof ESCUDOS_EXTRA !== 'undefined') {
 }
 cargarDB();
 db.torneos.forEach(function (t) { try { sincronizarTorneo(t, nombreEq); } catch (e) { console.warn(e); } });
-guardar();
+guardar(true);
 render();
+if (sincVinculada()) bajarNube(false);
+// al volver a la app (cambio de pestaña/dispositivo), buscar novedades en la nube
+document.addEventListener('visibilitychange', function () {
+  if (!document.hidden && sincVinculada() && Date.now() - syncUltimoPull > 30000) bajarNube(false);
+});
 </script>
 </body>
 </html>
