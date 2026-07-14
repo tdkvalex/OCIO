@@ -345,6 +345,27 @@ tr.lider-final{background:rgba(245,185,64,.07)}
 .partido.fin .gol-inp{color:var(--accent)}
 .global-tag{font-size:.72rem;color:var(--info);font-weight:800}
 
+/* ---------- Cronómetro del partido ---------- */
+.timer-row{
+  display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;
+  margin-top:11px;padding-top:11px;border-top:1px dashed rgba(38,56,94,.65);
+  font-size:.82rem;color:var(--muted);font-weight:700;
+}
+.timer-min{
+  width:60px;height:38px;text-align:center;font-weight:800;border-radius:10px;
+  background:var(--bg2);border:1.5px solid var(--border);outline:none;
+  color:var(--text);-moz-appearance:textfield;
+}
+.timer-min::-webkit-inner-spin-button,.timer-min::-webkit-outer-spin-button{-webkit-appearance:none}
+.timer-min:focus{border-color:var(--accent)}
+.timer-display{
+  font-size:1.3rem;font-weight:900;font-variant-numeric:tabular-nums;
+  color:var(--accent);letter-spacing:.05em;min-width:78px;text-align:center;
+}
+.timer-display.agotandose{color:var(--danger);animation:latido 1s ease-in-out infinite}
+.timer-display.pausado{color:var(--warn)}
+.partido.pitazo{border-color:rgba(245,185,64,.7);box-shadow:0 0 0 2px rgba(245,185,64,.3),var(--shadow)}
+
 /* ---------- Llaves (bracket) ---------- */
 .bracket-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:10px}
 .bracket{display:flex;gap:14px;min-width:min-content;align-items:stretch}

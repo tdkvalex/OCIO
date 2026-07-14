@@ -49,7 +49,8 @@ var st = {
   tab: 'posiciones',
   fases: {},              // por torneo: selección de fase en "Partidos"
   wizard: null,
-  modal: null             // {titulo, msg, ok, peligro, resolver}
+  modal: null,            // {titulo, msg, ok, peligro, resolver}
+  pitazos: {}             // partidos cuyo cronómetro ya sonó (resaltados)
 };
 
 /* =========================================================================
@@ -78,6 +79,105 @@ function crestHTML(id, grande) {
     '<path d="M20 2 L38 8 V26 C38 38 20 46 20 46 Z" fill="' + eq.c2 + '"/>' +
     '<text x="20" y="28" text-anchor="middle" font-size="11" font-weight="800" font-family="inherit" fill="#fff" stroke="rgba(0,0,0,.55)" stroke-width="2.6" paint-order="stroke">' + esc(eq.abrev) + '</text>' +
     '</svg></span>';
+}
+
+/* =========================================================================
+   CRONÓMETRO DE PARTIDO CON PITAZO
+   ========================================================================= */
+var timers = {};          // idPartido → {finEn, totalMs, pausadoResta}
+var timerInterval = null;
+var audioCtx = null;
+
+function fmtTiempo(ms) {
+  var s = Math.max(0, Math.ceil(ms / 1000));
+  var m = Math.floor(s / 60); s = s % 60;
+  return (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+}
+function timerRestante(t) {
+  return t.pausadoResta != null ? t.pausadoResta : t.finEn - Date.now();
+}
+function asegurarAudio() {
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+  } catch (e) { /* sin audio */ }
+}
+/* Silbato de árbitro sintetizado: dos tonos con trino rápido */
+function silbato(inicio, dur) {
+  var env = audioCtx.createGain();
+  env.gain.setValueAtTime(0.0001, inicio);
+  env.gain.exponentialRampToValueAtTime(0.6, inicio + 0.02);
+  env.gain.setValueAtTime(0.6, Math.max(inicio + 0.03, inicio + dur - 0.06));
+  env.gain.exponentialRampToValueAtTime(0.0001, inicio + dur);
+  env.connect(audioCtx.destination);
+  var trem = audioCtx.createGain();
+  trem.gain.value = 0.55;
+  trem.connect(env);
+  var lfo = audioCtx.createOscillator();
+  lfo.type = 'square'; lfo.frequency.value = 39;
+  var lfoG = audioCtx.createGain(); lfoG.gain.value = 0.45;
+  lfo.connect(lfoG); lfoG.connect(trem.gain);
+  [[2093, 'square', 0.5], [2793, 'triangle', 0.35]].forEach(function (cfg) {
+    var o = audioCtx.createOscillator();
+    o.type = cfg[1]; o.frequency.value = cfg[0];
+    var og = audioCtx.createGain(); og.gain.value = cfg[2];
+    o.connect(og); og.connect(trem);
+    o.start(inicio); o.stop(inicio + dur);
+  });
+  lfo.start(inicio); lfo.stop(inicio + dur);
+}
+/* Pitazo final: dos cortos y uno largo, más vibración */
+function pitazo() {
+  try {
+    asegurarAudio();
+    if (audioCtx) {
+      var t0 = audioCtx.currentTime + 0.05;
+      silbato(t0, 0.35);
+      silbato(t0 + 0.5, 0.35);
+      silbato(t0 + 1.0, 1.5);
+    }
+  } catch (e) { /* sin audio */ }
+  try { if (navigator.vibrate) navigator.vibrate([300, 150, 300, 150, 900]); } catch (e) { }
+}
+function arrancarTick() {
+  if (timerInterval) return;
+  timerInterval = setInterval(function () {
+    var ids = Object.keys(timers);
+    if (!ids.length) { clearInterval(timerInterval); timerInterval = null; return; }
+    ids.forEach(function (id) {
+      var t = timers[id];
+      if (t.pausadoResta != null) return;
+      var resta = t.finEn - Date.now();
+      if (resta <= 0) {
+        delete timers[id];
+        st.pitazos[id] = true;
+        pitazo();
+        avisar('🏁 ¡Pitazo final! Ingresa el marcador y finaliza el partido.');
+        if (st.vista === 'torneo') render(true);
+        return;
+      }
+      var el = document.querySelector('[data-timer-display="' + id + '"]');
+      if (el) {
+        el.textContent = fmtTiempo(resta);
+        el.classList.toggle('agotandose', resta <= 10500);
+      }
+    });
+  }, 250);
+}
+function filaTimer(m) {
+  var t = timers[m.id];
+  if (!t) {
+    var min = db.timerMin || 10;
+    return '<div class="timer-row">⏱️ Cronómetro:' +
+      '<input class="timer-min" type="number" min="1" max="120" inputmode="numeric" value="' + min + '" data-timer-min="' + m.id + '"><span>min</span>' +
+      '<button class="btn btn-sm" data-a="timer-ini" data-m="' + m.id + '">▶ Iniciar</button></div>';
+  }
+  var resta = timerRestante(t);
+  var pausado = t.pausadoResta != null;
+  return '<div class="timer-row">' +
+    '<span class="timer-display ' + (pausado ? 'pausado' : (resta <= 10500 ? 'agotandose' : '')) + '" data-timer-display="' + m.id + '">' + fmtTiempo(resta) + '</span>' +
+    '<button class="btn btn-sm" data-a="timer-pausa" data-m="' + m.id + '">' + (pausado ? '▶ Seguir' : '⏸ Pausa') + '</button>' +
+    '<button class="btn btn-sm btn-ghost" data-a="timer-stop" data-m="' + m.id + '">✕ Quitar</button></div>';
 }
 
 /* =========================================================================
@@ -678,7 +778,7 @@ function cartaPartido(t, m) {
 
   var conPenales = m.fin ? (m.pl !== null && m.pv !== null) : necesitaPenales(t, m);
 
-  var html = '<div class="card partido ' + (m.fin ? 'fin' : '') + '">' +
+  var html = '<div class="card partido ' + (m.fin ? 'fin' : '') + (st.pitazos[m.id] && !m.fin ? ' pitazo' : '') + '">' +
     '<div class="meta">' + meta.join(' · ') + '</div>' +
     '<div class="marcador">' +
     '<div class="lado">' + crestHTML(el, true) + '<span class="nm">' + esc(el ? el.nombre : '—') + '</span></div>' +
@@ -695,6 +795,8 @@ function cartaPartido(t, m) {
       '<input class="pen-inp" type="number" min="0" max="99" inputmode="numeric" data-m="' + m.id + '" data-campo="pv" value="' + (m.pv === null ? '' : m.pv) + '"' + (m.fin ? ' disabled' : '') + '>' +
       '</div>';
   }
+
+  if (!m.fin) html += filaTimer(m);
 
   html += '<div class="acciones">';
   if (m.fin) {
@@ -851,6 +953,8 @@ function finalizarPartido(m, silencioso) {
   }
   var elimAntes = t.partidos.filter(function (p) { return p.tipo === 'elim'; }).length;
   m.fin = true;
+  delete timers[m.id];
+  delete st.pitazos[m.id];
   sincronizarTorneo(t, nombreEq);
   var elimDespues = t.partidos.filter(function (p) { return p.tipo === 'elim'; }).length;
   guardar();
@@ -1125,6 +1229,31 @@ var acciones = {
         render();
         avisar('Torneo eliminado 🗑️');
       });
+  },
+
+  /* ----- cronómetro ----- */
+  'timer-ini': function (d) {
+    var inp = document.querySelector('[data-timer-min="' + d.m + '"]');
+    var min = Math.max(1, Math.min(120, parseInt(inp && inp.value, 10) || 10));
+    db.timerMin = min;
+    guardar();
+    asegurarAudio(); // dentro del toque del usuario: habilita el sonido en iOS
+    timers[d.m] = { finEn: Date.now() + min * 60000, totalMs: min * 60000, pausadoResta: null };
+    delete st.pitazos[d.m];
+    arrancarTick();
+    render(true);
+  },
+  'timer-pausa': function (d) {
+    var t = timers[d.m];
+    if (!t) return;
+    if (t.pausadoResta != null) { t.finEn = Date.now() + t.pausadoResta; t.pausadoResta = null; }
+    else t.pausadoResta = Math.max(0, t.finEn - Date.now());
+    render(true);
+  },
+  'timer-stop': function (d) {
+    delete timers[d.m];
+    delete st.pitazos[d.m];
+    render(true);
   },
 
   /* ----- datos ----- */

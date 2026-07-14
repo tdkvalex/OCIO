@@ -17,16 +17,19 @@ import { fileURLToPath } from 'node:url';
 
 const RAIZ = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const API = 'https://www.thesportsdb.com/api/v1/json/3';
-const LIMITE = 80 * 1024;           // tamaño máximo por escudo
+const LIMITE = 512 * 1024;          // tamaño máximo por escudo (se optimizan después)
 const PAUSA = 1200;                 // ms entre llamadas (respeta la API)
 const conSelecciones = process.argv.includes('--selecciones');
 
 const ctx = { console, window: {} };
 vm.createContext(ctx);
-for (const f of ['js/data.js', 'js/escudos.js']) {
-  vm.runInContext(fs.readFileSync(path.join(RAIZ, f), 'utf8'), ctx, { filename: f });
+for (const f of ['js/data.js', 'js/escudos.js', 'js/escudos-extra.js']) {
+  try {
+    vm.runInContext(fs.readFileSync(path.join(RAIZ, f), 'utf8'), ctx, { filename: f });
+  } catch (e) { /* escudos-extra puede no existir */ }
 }
 const { DATOS, ESCUDOS } = ctx;
+const PREVIOS = ctx.ESCUDOS_EXTRA || {};
 
 /* Nombres de búsqueda en inglés cuando difieren del nombre en español */
 const CONSULTAS = {
@@ -41,7 +44,7 @@ const CONSULTAS = {
   'c-monaco': 'Monaco', 'c-niza': 'Nice', 'c-saint-etienne': 'Saint-Etienne',
   'c-sporting-de-lisboa': 'Sporting CP', 'c-vitoria-de-guimaraes': 'Vitoria Guimaraes',
   'c-club-brujas': 'Club Brugge', 'c-gante': 'Gent',
-  'c-estrella-roja': 'Red Star Belgrade', 'c-dinamo-de-kiev': 'Dynamo Kyiv',
+  'c-estrella-roja': ['Red Star Belgrade', 'Crvena Zvezda'], 'c-dinamo-de-kiev': ['Dynamo Kyiv', 'Dynamo Kiev'],
   'c-copenhague': 'FC Copenhagen', 'c-basilea': 'Basel', 'c-aek-atenas': 'AEK Athens',
   'c-spartak-moscu': 'Spartak Moscow', 'c-cska-moscu': 'CSKA Moscow',
   'c-dinamo-moscu': 'Dynamo Moscow', 'c-legia-varsovia': 'Legia Warsaw',
@@ -70,8 +73,24 @@ const CONSULTAS = {
   'c-atletico-san-luis': 'Atletico San Luis', 'c-cf-montreal': 'CF Montreal',
   'c-saprissa': 'Deportivo Saprissa', 'c-olimpia-de-honduras': 'CD Olimpia',
   'c-municipal': 'CSD Municipal', 'c-aguila': 'CD Aguila', 'c-tauro-fc': 'Tauro',
-  'c-al-ahli-saudi': 'Al-Ahli Saudi', 'c-fc-seul': 'FC Seoul',
-  'c-jeonbuk-hyundai': 'Jeonbuk Hyundai Motors', 'c-ulsan-hd': 'Ulsan Hyundai',
+  'c-al-ahli-saudi': ['Al-Ahli Saudi FC', 'Al-Ahli Jeddah', 'Al-Ahli'],
+  'c-al-hilal': ['Al-Hilal Saudi FC', 'Al-Hilal FC', 'Al Hilal'],
+  'c-al-nassr': ['Al-Nassr FC', 'Al Nassr'],
+  'c-al-ittihad': ['Al-Ittihad FC', 'Al-Ittihad Jeddah', 'Al Ittihad'],
+  'c-al-sadd': ['Al-Sadd SC', 'Al Sadd'],
+  'c-al-duhail': ['Al-Duhail SC', 'Al Duhail'],
+  'c-shabab-al-ahli': ['Shabab Al-Ahli Dubai', 'Shabab Al Ahli'],
+  'c-zenit': ['Zenit St. Petersburg', 'Zenit Saint Petersburg', 'Zenit'],
+  'c-colo-colo': ['Colo Colo', 'Colo-Colo'],
+  'c-o-higgins': ["O'Higgins FC", "O'Higgins", 'OHiggins'],
+  'c-san-lorenzo': ['San Lorenzo de Almagro', 'San Lorenzo'],
+  'c-atletico-nacional': ['Atletico Nacional', 'Atletico Nacional Medellin'],
+  'c-olimpia': ['Club Olimpia', 'Olimpia Asuncion', 'Olimpia'],
+  'c-the-strongest': ['The Strongest La Paz', 'The Strongest'],
+  'c-municipal': ['CSD Municipal', 'Municipal Guatemala'],
+  'c-union-saint-gilloise': ['Union Saint-Gilloise', 'Royale Union Saint-Gilloise', 'Union SG'], 'c-fc-seul': 'FC Seoul',
+  'c-jeonbuk-hyundai': ['Jeonbuk Hyundai Motors', 'Jeonbuk Motors', 'Jeonbuk FC'],
+  'c-ulsan-hd': ['Ulsan Hyundai', 'Ulsan HD FC', 'Ulsan'],
   'c-shanghai-port': 'Shanghai Port', 'c-al-ain': 'Al Ain',
   'c-esperance-de-tunez': 'Esperance de Tunis', 'c-etoile-du-sahel': 'Etoile du Sahel',
   'c-yokohama-f-marinos': 'Yokohama F Marinos'
@@ -133,16 +152,21 @@ async function comoDataURI(url) {
   return null;
 }
 
-const extra = {};
+const extra = Object.assign({}, PREVIOS);
 let hechos = 0, fallos = [];
 
-async function buscarEquipo(consulta, esSeleccion) {
-  const d = await json(`${API}/searchteams.php?t=${encodeURIComponent(consulta)}`);
-  const equipos = (d && d.teams) || [];
-  const futbol = equipos.filter(t => t.strSport === 'Soccer');
-  const exacto = futbol.find(t => norm(t.strTeam) === norm(consulta));
-  const elegido = exacto || futbol[0];
-  return elegido && (elegido.strBadge || elegido.strTeamBadge) || null;
+async function buscarEquipo(consultas) {
+  let primero = null;
+  for (const consulta of [].concat(consultas)) {
+    const d = await json(`${API}/searchteams.php?t=${encodeURIComponent(consulta)}`);
+    const equipos = (d && d.teams) || [];
+    const futbol = equipos.filter(t => t.strSport === 'Soccer');
+    const exacto = futbol.find(t => norm(t.strTeam) === norm(consulta));
+    if (exacto) return exacto.strBadge || exacto.strTeamBadge || null;
+    if (!primero && futbol[0]) primero = futbol[0].strBadge || futbol[0].strTeamBadge || null;
+    await espera(PAUSA / 2);
+  }
+  return primero;
 }
 
 /* ---------- Clubes (y selecciones con --selecciones) ---------- */
@@ -152,8 +176,8 @@ DATOS.SELECCIONES.forEach(([, lista]) =>
   lista.forEach(([nombre, iso]) => isoPorNombre.set(nombre, iso)));
 
 const pendientes = DATOS.equipos.filter(e => {
-  if (ESCUDOS[e.id] && e.tipo === 'club') return false;      // ya tiene original
-  if (e.tipo === 'seleccion' && !conSelecciones) return false;
+  if ((ESCUDOS[e.id] || PREVIOS[e.id]) && e.tipo === 'club') return false; // ya tiene original
+  if (e.tipo === 'seleccion' && (!conSelecciones || PREVIOS[e.id])) return false;
   return true;
 });
 console.log(`Equipos por buscar: ${pendientes.length} (esto tomará ~${Math.round(pendientes.length * (PAUSA + 800) / 60000)} min)`);
@@ -164,7 +188,7 @@ for (const e of pendientes) {
     const iso = isoPorNombre.get(e.nombre);
     consulta = SELECCIONES_EN[e.nombre] || (iso ? displayEN.of(iso) : e.nombre);
   }
-  const badge = await buscarEquipo(consulta, e.tipo === 'seleccion');
+  const badge = await buscarEquipo(consulta);
   await espera(PAUSA);
   if (badge) {
     const uri = await comoDataURI(badge);
@@ -178,11 +202,13 @@ for (const e of pendientes) {
 const todas = await json(`${API}/all_leagues.php`);
 const listado = (todas && todas.leagues) || [];
 for (const [clave, candidatos] of Object.entries(LIGAS)) {
-  if (ESCUDOS[clave]) continue;
+  if (ESCUDOS[clave] || PREVIOS[clave]) continue;
   let liga = null;
   for (const c of candidatos) {
+    const palabras = norm(c).split(/\s+/);
     liga = listado.find(l => norm(l.strLeague) === norm(c)) ||
-      listado.find(l => norm(l.strLeague).includes(norm(c)));
+      listado.find(l => norm(l.strLeague).includes(norm(c))) ||
+      listado.find(l => { const nl = norm(l.strLeague); return palabras.every(p => nl.includes(p)); });
     if (liga) break;
   }
   if (!liga) { fallos.push(clave); continue; }
