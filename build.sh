@@ -23,13 +23,15 @@ HEAD
 </head>
 <body>
 <div id="app">
-<div style="max-width:480px;margin:18vh auto 0;padding:24px;text-align:center;font-family:sans-serif;color:#93a4bf">
+<div style="max-width:480px;margin:14vh auto 0;padding:24px;text-align:center;font-family:sans-serif;color:#93a4bf">
 <div style="font-size:3rem">⚽</div>
 <h2 style="margin:10px 0;color:#b9c6da">Cargando la aplicación…</h2>
-<p style="line-height:1.6">Si este mensaje no desaparece, el visor donde abriste el archivo
-no ejecuta JavaScript (pasa con las vistas previas de archivos del teléfono).<br><br>
-<b>Solución:</b> abre el archivo con <b>Chrome</b> o <b>Safari</b> — mantén pulsado el archivo
-y elige «Abrir con» o «Compartir → Safari/Chrome».</p>
+<p style="line-height:1.6">Si este mensaje no desaparece, este visor no puede ejecutar la aplicación
+(las vistas previas de archivos no ejecutan JavaScript).</p>
+<p style="margin-top:22px"><a href="https://tdkvalex.github.io/OCIO/" target="_blank" rel="noopener"
+style="display:inline-block;background:#2fd06b;color:#04220f;font-weight:800;padding:14px 26px;border-radius:12px;text-decoration:none;font-size:1.05rem">▶ &nbsp;Abrir la app en el navegador</a></p>
+<p style="margin-top:18px;font-size:.85rem;line-height:1.6">O copia esta dirección en Safari/Chrome:<br>
+<b style="color:#b9c6da">tdkvalex.github.io/OCIO</b></p>
 </div>
 </div>
 <div id="toast" role="status"></div>
