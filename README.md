@@ -27,10 +27,13 @@ No necesita servidor ni conexión: es HTML/CSS/JS puro y guarda todo en el dispo
 - **Sorteo de grupos** con re-sorteo e intercambio manual de equipos.
 - **Encuentros**: ingresa marcadores, penales cuando hay empate en llaves,
   finaliza o reabre partidos, o simula resultados con 🎲.
-- **Cronómetro opcional por partido**: define los minutos (1-120), inicia,
-  pausa o quita; al llegar a cero suena un pitazo de árbitro (dos cortos y
-  uno largo), vibra en móviles y el partido queda resaltado hasta ingresar
-  el marcador.
+- **Cronómetro opcional por partido**: define los minutos (1-120) y toca
+  «Iniciar»; hay una **cuenta regresiva de 5 segundos** y al comenzar suena un
+  **pitazo inicial**; al llegar a cero, **pitazo final** (dos cortos y uno
+  largo). Vibra en móviles, mantiene la pantalla encendida durante el partido
+  y deja el partido resaltado hasta ingresar el marcador. Botón «🔊 Probar»
+  para comprobar el sonido (en iPhone, quita el modo silencio y sube el
+  volumen). El silbato se sintetiza con Web Audio, con respaldo en WAV.
 - **Automático**: tablas de posiciones, clasificación a llaves, avance de rondas,
   tercer puesto, campeón 🏆 y estadísticas (goles, promedios, mejor ataque/defensa,
   mayor goleada, tabla general).

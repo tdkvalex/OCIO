@@ -95,9 +95,10 @@ function crestHTML(id, grande) {
 /* =========================================================================
    CRONÓMETRO DE PARTIDO CON PITAZO
    ========================================================================= */
-var timers = {};          // idPartido → {finEn, totalMs, pausadoResta}
+var timers = {};          // idPartido → {fase, finEn, totalMs, pausadoResta}
 var timerInterval = null;
 var audioCtx = null;
+var CUENTA_INICIO = 5;    // segundos de cuenta regresiva antes del partido
 
 function fmtTiempo(ms) {
   var s = Math.max(0, Math.ceil(ms / 1000));
@@ -107,28 +108,34 @@ function fmtTiempo(ms) {
 function timerRestante(t) {
   return t.pausadoResta != null ? t.pausadoResta : t.finEn - Date.now();
 }
+
+/* ---------- Audio: WebAudio (principal) + WAV desbloqueado (respaldo) ---------- */
 function asegurarAudio() {
   try {
     if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     if (audioCtx.state === 'suspended') audioCtx.resume();
   } catch (e) { /* sin audio */ }
+  return audioCtx && audioCtx.state === 'running';
 }
-/* Silbato de árbitro sintetizado: dos tonos con trino rápido */
+/* Un silbatazo WebAudio: dos tonos con trino rápido, a buen volumen */
 function silbato(inicio, dur) {
+  var master = audioCtx.createGain();
+  master.gain.value = 1;
+  master.connect(audioCtx.destination);
   var env = audioCtx.createGain();
   env.gain.setValueAtTime(0.0001, inicio);
-  env.gain.exponentialRampToValueAtTime(0.6, inicio + 0.02);
-  env.gain.setValueAtTime(0.6, Math.max(inicio + 0.03, inicio + dur - 0.06));
+  env.gain.exponentialRampToValueAtTime(0.9, inicio + 0.02);
+  env.gain.setValueAtTime(0.9, Math.max(inicio + 0.03, inicio + dur - 0.06));
   env.gain.exponentialRampToValueAtTime(0.0001, inicio + dur);
-  env.connect(audioCtx.destination);
+  env.connect(master);
   var trem = audioCtx.createGain();
-  trem.gain.value = 0.55;
+  trem.gain.value = 0.6;
   trem.connect(env);
   var lfo = audioCtx.createOscillator();
   lfo.type = 'square'; lfo.frequency.value = 39;
   var lfoG = audioCtx.createGain(); lfoG.gain.value = 0.45;
   lfo.connect(lfoG); lfoG.connect(trem.gain);
-  [[2093, 'square', 0.5], [2793, 'triangle', 0.35]].forEach(function (cfg) {
+  [[2093, 'square', 0.55], [2793, 'triangle', 0.4]].forEach(function (cfg) {
     var o = audioCtx.createOscillator();
     o.type = cfg[1]; o.frequency.value = cfg[0];
     var og = audioCtx.createGain(); og.gain.value = cfg[2];
@@ -137,37 +144,132 @@ function silbato(inicio, dur) {
   });
   lfo.start(inicio); lfo.stop(inicio + dur);
 }
-/* Pitazo final: dos cortos y uno largo, más vibración */
-function pitazo() {
-  try {
-    asegurarAudio();
-    if (audioCtx) {
-      var t0 = audioCtx.currentTime + 0.05;
-      silbato(t0, 0.35);
-      silbato(t0 + 0.5, 0.35);
-      silbato(t0 + 1.0, 1.5);
-    }
-  } catch (e) { /* sin audio */ }
-  try { if (navigator.vibrate) navigator.vibrate([300, 150, 300, 150, 900]); } catch (e) { }
+function silbatoWebAudio(patron) {
+  if (!asegurarAudio() || !audioCtx) return false;
+  var t0 = audioCtx.currentTime + 0.05;
+  patron.forEach(function (p) { silbato(t0 + p[0], p[1]); });
+  return true;
 }
+
+/* Respaldo: silbato sintetizado a WAV (data-URI) reproducido con <audio>,
+   desbloqueado en el toque del usuario (necesario en iPhone). */
+function _wavDataUri(muestras, sr) {
+  var n = muestras.length, buf = new ArrayBuffer(44 + n * 2), dv = new DataView(buf);
+  function txt(off, s) { for (var i = 0; i < s.length; i++) dv.setUint8(off + i, s.charCodeAt(i)); }
+  txt(0, 'RIFF'); dv.setUint32(4, 36 + n * 2, true); txt(8, 'WAVE');
+  txt(12, 'fmt '); dv.setUint32(16, 16, true); dv.setUint16(20, 1, true); dv.setUint16(22, 1, true);
+  dv.setUint32(24, sr, true); dv.setUint32(28, sr * 2, true); dv.setUint16(32, 2, true); dv.setUint16(34, 16, true);
+  txt(36, 'data'); dv.setUint32(40, n * 2, true);
+  var off = 44;
+  for (var i = 0; i < n; i++) {
+    var v = Math.max(-1, Math.min(1, muestras[i]));
+    dv.setInt16(off, v < 0 ? v * 0x8000 : v * 0x7fff, true); off += 2;
+  }
+  var bytes = new Uint8Array(buf), bin = '';
+  for (var j = 0; j < bytes.length; j++) bin += String.fromCharCode(bytes[j]);
+  return 'data:audio/wav;base64,' + btoa(bin);
+}
+function _wavSilbato(patron) {
+  var sr = 22050, total = 0.06;
+  patron.forEach(function (p) { total = Math.max(total, p[0] + p[1]); });
+  var n = Math.ceil(sr * (total + 0.05)), m = new Float32Array(n);
+  patron.forEach(function (p) {
+    var s0 = Math.floor(p[0] * sr), len = Math.floor(p[1] * sr);
+    for (var i = 0; i < len; i++) {
+      var t = i / sr, a = 0.015, r = 0.06, env;
+      if (t < a) env = t / a; else if (t > p[1] - r) env = Math.max(0, (p[1] - t) / r); else env = 1;
+      var warble = 0.7 + 0.3 * Math.sin(2 * Math.PI * 38 * t);
+      var sig = Math.sin(2 * Math.PI * 2200 * t) * 0.6 + Math.sin(2 * Math.PI * 2900 * t) * 0.32;
+      m[s0 + i] += env * warble * sig * 0.8;
+    }
+  });
+  return _wavDataUri(m, sr);
+}
+var audioInicio = null, audioFinal = null;
+function _prepararWav() {
+  if (audioInicio) return;
+  try {
+    audioInicio = new Audio(_wavSilbato([[0, 0.6]]));
+    audioFinal = new Audio(_wavSilbato([[0, 0.35], [0.5, 0.35], [1.0, 1.4]]));
+    audioInicio.preload = 'auto'; audioFinal.preload = 'auto';
+  } catch (e) { /* sin <audio> */ }
+}
+function desbloquearAudio() {
+  asegurarAudio();
+  _prepararWav();
+  [audioInicio, audioFinal].forEach(function (a) {
+    if (!a) return;
+    try {
+      a.muted = true;
+      var p = a.play();
+      if (p && p.then) p.then(function () { a.pause(); a.currentTime = 0; a.muted = false; }).catch(function () { a.muted = false; });
+      else { a.pause(); a.currentTime = 0; a.muted = false; }
+    } catch (e) { }
+  });
+}
+function reproducirWav(a) {
+  if (!a) return;
+  try { a.currentTime = 0; var p = a.play(); if (p && p.catch) p.catch(function () { }); } catch (e) { }
+}
+function sonarInicio() {
+  try { if (navigator.vibrate) navigator.vibrate(220); } catch (e) { }
+  if (!silbatoWebAudio([[0, 0.6]])) reproducirWav(audioInicio);
+  else reproducirWav(audioInicio); // ambos motores: máxima probabilidad de que suene
+}
+function sonarFinal() {
+  try { if (navigator.vibrate) navigator.vibrate([300, 150, 300, 150, 900]); } catch (e) { }
+  var web = silbatoWebAudio([[0, 0.35], [0.5, 0.35], [1.0, 1.4]]);
+  if (!web) reproducirWav(audioFinal);
+  else reproducirWav(audioFinal);
+}
+
+/* ---------- Mantener la pantalla encendida durante el partido ---------- */
+var wakeLock = null;
+function pedirWakeLock() {
+  try {
+    if (navigator.wakeLock && navigator.wakeLock.request) {
+      navigator.wakeLock.request('screen').then(function (w) { wakeLock = w; }).catch(function () { });
+    }
+  } catch (e) { }
+}
+function soltarWakeLock() {
+  try { if (wakeLock) { wakeLock.release(); wakeLock = null; } } catch (e) { }
+}
+document.addEventListener('visibilitychange', function () {
+  if (!document.hidden && Object.keys(timers).length && !wakeLock) pedirWakeLock();
+});
+
 function arrancarTick() {
   if (timerInterval) return;
   timerInterval = setInterval(function () {
     var ids = Object.keys(timers);
-    if (!ids.length) { clearInterval(timerInterval); timerInterval = null; return; }
+    if (!ids.length) { clearInterval(timerInterval); timerInterval = null; soltarWakeLock(); return; }
     ids.forEach(function (id) {
       var t = timers[id];
       if (t.pausadoResta != null) return;
       var resta = t.finEn - Date.now();
+      var el = document.querySelector('[data-timer-display="' + id + '"]');
+      if (t.fase === 'cuenta') {
+        if (resta <= 0) {
+          t.fase = 'juego';
+          t.finEn = Date.now() + t.totalMs;
+          sonarInicio();
+          avisar('▶️ ¡Comienza el partido!');
+          if (st.vista === 'torneo') render(true);
+        } else if (el) {
+          el.textContent = Math.ceil(resta / 1000);
+        }
+        return;
+      }
       if (resta <= 0) {
         delete timers[id];
         st.pitazos[id] = true;
-        pitazo();
+        sonarFinal();
         avisar('🏁 ¡Pitazo final! Ingresa el marcador y finaliza el partido.');
+        if (!Object.keys(timers).length) soltarWakeLock();
         if (st.vista === 'torneo') render(true);
         return;
       }
-      var el = document.querySelector('[data-timer-display="' + id + '"]');
       if (el) {
         el.textContent = fmtTiempo(resta);
         el.classList.toggle('agotandose', resta <= 10500);
@@ -181,7 +283,15 @@ function filaTimer(m) {
     var min = db.timerMin || 10;
     return '<div class="timer-row">⏱️ Cronómetro:' +
       '<input class="timer-min" type="number" min="1" max="120" inputmode="numeric" value="' + min + '" data-timer-min="' + m.id + '"><span>min</span>' +
-      '<button class="btn btn-sm" data-a="timer-ini" data-m="' + m.id + '">▶ Iniciar</button></div>';
+      '<button class="btn btn-sm" data-a="timer-probar" data-m="' + m.id + '">🔊 Probar</button>' +
+      '<button class="btn btn-sm btn-primary" data-a="timer-ini" data-m="' + m.id + '">▶ Iniciar</button></div>';
+  }
+  if (t.fase === 'cuenta') {
+    var seg = Math.ceil((t.finEn - Date.now()) / 1000);
+    return '<div class="timer-row">🏁 Inicia en' +
+      '<span class="timer-display cuenta" data-timer-display="' + m.id + '">' + seg + '</span>' +
+      '<button class="btn btn-sm" data-a="timer-saltar" data-m="' + m.id + '">⏭ Ya</button>' +
+      '<button class="btn btn-sm btn-ghost" data-a="timer-stop" data-m="' + m.id + '">✕</button></div>';
   }
   var resta = timerRestante(t);
   var pausado = t.pausadoResta != null;
@@ -1497,15 +1607,28 @@ var acciones = {
   },
 
   /* ----- cronómetro ----- */
+  'timer-probar': function () {
+    desbloquearAudio();       // dentro del toque: habilita el sonido en iPhone
+    sonarInicio();            // deja oír el silbato ya mismo
+  },
   'timer-ini': function (d) {
     var inp = document.querySelector('[data-timer-min="' + d.m + '"]');
     var min = Math.max(1, Math.min(120, parseInt(inp && inp.value, 10) || 10));
     db.timerMin = min;
     guardar();
-    asegurarAudio(); // dentro del toque del usuario: habilita el sonido en iOS
-    timers[d.m] = { finEn: Date.now() + min * 60000, totalMs: min * 60000, pausadoResta: null };
+    desbloquearAudio();       // dentro del toque del usuario: habilita el sonido en iOS
+    pedirWakeLock();          // mantener la pantalla encendida durante el partido
+    timers[d.m] = { fase: 'cuenta', finEn: Date.now() + CUENTA_INICIO * 1000, totalMs: min * 60000, pausadoResta: null };
     delete st.pitazos[d.m];
     arrancarTick();
+    render(true);
+  },
+  'timer-saltar': function (d) {
+    var t = timers[d.m];
+    if (!t || t.fase !== 'cuenta') return;
+    t.fase = 'juego';
+    t.finEn = Date.now() + t.totalMs;
+    sonarInicio();
     render(true);
   },
   'timer-pausa': function (d) {
@@ -1518,6 +1641,7 @@ var acciones = {
   'timer-stop': function (d) {
     delete timers[d.m];
     delete st.pitazos[d.m];
+    if (!Object.keys(timers).length) soltarWakeLock();
     render(true);
   },
 

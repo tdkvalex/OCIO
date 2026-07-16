@@ -364,6 +364,10 @@ tr.lider-final{background:rgba(245,185,64,.07)}
 }
 .timer-display.agotandose{color:var(--danger);animation:latido 1s ease-in-out infinite}
 .timer-display.pausado{color:var(--warn)}
+.timer-display.cuenta{
+  font-size:1.7rem;color:var(--warn);min-width:44px;
+  animation:latido 1s ease-in-out infinite;
+}
 .partido.pitazo{border-color:rgba(245,185,64,.7);box-shadow:0 0 0 2px rgba(245,185,64,.3),var(--shadow)}
 
 /* ---------- Llaves (bracket) ---------- */
