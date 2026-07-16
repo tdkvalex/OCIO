@@ -185,42 +185,72 @@ function _wavSilbato(patron) {
   });
   return _wavDataUri(m, sr);
 }
-var audioInicio = null, audioFinal = null;
+/* WAV de casi-silencio para «activar la sesión de audio» de iOS: mientras un
+   <audio> se reproduce, el silbato suena aunque el interruptor lateral esté
+   en silencio (técnica «unmute»). */
+function _wavSilencio() {
+  var sr = 8000, n = Math.floor(sr * 0.4), m = new Float32Array(n);
+  for (var i = 0; i < 30; i++) m[i] = (i / 30) * 0.0015; // clic imperceptible
+  return _wavDataUri(m, sr);
+}
+var audioInicio = null, audioFinal = null, sesionTag = null;
 function _prepararWav() {
   if (audioInicio) return;
   try {
     audioInicio = new Audio(_wavSilbato([[0, 0.6]]));
     audioFinal = new Audio(_wavSilbato([[0, 0.35], [0.5, 0.35], [1.0, 1.4]]));
-    audioInicio.preload = 'auto'; audioFinal.preload = 'auto';
+    [audioInicio, audioFinal].forEach(function (a) {
+      a.preload = 'auto';
+      a.setAttribute('playsinline', '');
+    });
   } catch (e) { /* sin <audio> */ }
+}
+/* Sesión de audio: <audio> silencioso en bucle que mantiene el sonido activo
+   durante todo el partido (clave para que el pitazo suene en iPhone). */
+function iniciarSesionAudio() {
+  try {
+    if (!sesionTag) {
+      sesionTag = new Audio(_wavSilencio());
+      sesionTag.loop = true;
+      sesionTag.volume = 0.02;
+      sesionTag.setAttribute('playsinline', '');
+    }
+    var p = sesionTag.play();
+    if (p && p.catch) p.catch(function () { });
+  } catch (e) { }
+}
+function detenerSesionAudio() {
+  try { if (sesionTag) { sesionTag.pause(); sesionTag.currentTime = 0; } } catch (e) { }
 }
 function desbloquearAudio() {
   asegurarAudio();
   _prepararWav();
+  iniciarSesionAudio();
+  // desbloqueo por volumen (no muteado): iOS lo cuenta como reproducción válida
   [audioInicio, audioFinal].forEach(function (a) {
     if (!a) return;
     try {
-      a.muted = true;
+      a.volume = 0;
       var p = a.play();
-      if (p && p.then) p.then(function () { a.pause(); a.currentTime = 0; a.muted = false; }).catch(function () { a.muted = false; });
-      else { a.pause(); a.currentTime = 0; a.muted = false; }
+      if (p && p.then) p.then(function () { a.pause(); a.currentTime = 0; a.volume = 1; }).catch(function () { a.volume = 1; });
+      else { a.pause(); a.currentTime = 0; a.volume = 1; }
     } catch (e) { }
   });
 }
 function reproducirWav(a) {
   if (!a) return;
-  try { a.currentTime = 0; var p = a.play(); if (p && p.catch) p.catch(function () { }); } catch (e) { }
+  try { a.volume = 1; a.currentTime = 0; var p = a.play(); if (p && p.catch) p.catch(function () { }); } catch (e) { }
 }
+/* Ambos motores a la vez: máxima probabilidad de que suene en cualquier equipo */
 function sonarInicio() {
   try { if (navigator.vibrate) navigator.vibrate(220); } catch (e) { }
-  if (!silbatoWebAudio([[0, 0.6]])) reproducirWav(audioInicio);
-  else reproducirWav(audioInicio); // ambos motores: máxima probabilidad de que suene
+  silbatoWebAudio([[0, 0.6]]);
+  reproducirWav(audioInicio);
 }
 function sonarFinal() {
   try { if (navigator.vibrate) navigator.vibrate([300, 150, 300, 150, 900]); } catch (e) { }
-  var web = silbatoWebAudio([[0, 0.35], [0.5, 0.35], [1.0, 1.4]]);
-  if (!web) reproducirWav(audioFinal);
-  else reproducirWav(audioFinal);
+  silbatoWebAudio([[0, 0.35], [0.5, 0.35], [1.0, 1.4]]);
+  reproducirWav(audioFinal);
 }
 
 /* ---------- Mantener la pantalla encendida durante el partido ---------- */
@@ -243,7 +273,7 @@ function arrancarTick() {
   if (timerInterval) return;
   timerInterval = setInterval(function () {
     var ids = Object.keys(timers);
-    if (!ids.length) { clearInterval(timerInterval); timerInterval = null; soltarWakeLock(); return; }
+    if (!ids.length) { clearInterval(timerInterval); timerInterval = null; soltarWakeLock(); detenerSesionAudio(); return; }
     ids.forEach(function (id) {
       var t = timers[id];
       if (t.pausadoResta != null) return;
@@ -266,7 +296,7 @@ function arrancarTick() {
         st.pitazos[id] = true;
         sonarFinal();
         avisar('🏁 ¡Pitazo final! Ingresa el marcador y finaliza el partido.');
-        if (!Object.keys(timers).length) soltarWakeLock();
+        if (!Object.keys(timers).length) { soltarWakeLock(); detenerSesionAudio(); }
         if (st.vista === 'torneo') render(true);
         return;
       }
@@ -1609,7 +1639,8 @@ var acciones = {
   /* ----- cronómetro ----- */
   'timer-probar': function () {
     desbloquearAudio();       // dentro del toque: habilita el sonido en iPhone
-    sonarInicio();            // deja oír el silbato ya mismo
+    setTimeout(function () { sonarFinal(); }, 120); // deja oír el pitazo ya mismo
+    avisar('🔊 Si no suena: quita el silencio (interruptor lateral) y sube el volumen.');
   },
   'timer-ini': function (d) {
     var inp = document.querySelector('[data-timer-min="' + d.m + '"]');
@@ -1641,7 +1672,7 @@ var acciones = {
   'timer-stop': function (d) {
     delete timers[d.m];
     delete st.pitazos[d.m];
-    if (!Object.keys(timers).length) soltarWakeLock();
+    if (!Object.keys(timers).length) { soltarWakeLock(); detenerSesionAudio(); }
     render(true);
   },
 
