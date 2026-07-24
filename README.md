@@ -2,6 +2,11 @@
 
 **Úsala aquí → https://tdkvalex.github.io/OCIO/**
 
+> Este repositorio también incluye **🎓 Capacitaciones**, una plataforma
+> personalizable de capacitaciones (cursos, evaluaciones, seguimiento,
+> certificados y asistente de IA): ver [`capacitaciones/`](capacitaciones/)
+> o abrirla en https://tdkvalex.github.io/OCIO/capacitaciones/
+
 Aplicación web (móvil primero) para **crear y administrar torneos de fútbol**: ligas,
 liguillas, fases de grupos y eliminatorias, con **selecciones nacionales** o **clubes**.
 No necesita servidor ni conexión: es HTML/CSS/JS puro y guarda todo en el dispositivo
