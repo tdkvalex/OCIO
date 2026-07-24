@@ -96,7 +96,9 @@ capacitaciones/
 ├── js/app.js             Interfaz y estado (admin y colaborador)
 ├── build.sh              Genera dist/capacitaciones.html (archivo único)
 ├── dist/                 Versión de un solo archivo
-└── tests/test-logica.js  Pruebas de la lógica (node tests/test-logica.js)
+└── tests/
+    ├── test-logica.js        Pruebas de la lógica (node tests/test-logica.js)
+    └── humo-navegador.mjs    Prueba end-to-end en navegador (opcional)
 ```
 
 ## Pruebas
@@ -106,10 +108,18 @@ node tests/test-logica.js
 ```
 
 Cubre: fechas y vencimientos (meses con distinto largo, bisiestos), corrección
-de evaluaciones (única/múltiple/VF, aprobación), avance y estados de
-inscripción (pendiente → en curso → reprobado/completado → vencido),
-seguimiento y panel, CSV, validaciones de cursos y reconocimiento de enlaces
-de video.
+de evaluaciones (única/múltiple/VF, aprobación, datos corruptos), avance y
+estados de inscripción (pendiente → en curso → reprobado/completado →
+vencido), seguimiento y panel, CSV, validaciones de cursos y reconocimiento de
+enlaces de video.
+
+Prueba end-to-end en un navegador real (recorre crear curso → publicar →
+asignar → tomar el curso → rendir evaluación → certificado → verificación):
+
+```bash
+npm i -D playwright && npx playwright install chromium
+node tests/humo-navegador.mjs
+```
 
 ## Notas
 
@@ -117,5 +127,7 @@ de video.
   entre equipos. Para trasladar los datos usa Ajustes → Respaldo.
 - El verificador de certificados consulta el registro local de este mismo
   dispositivo (útil para el administrador que emitió los certificados).
+- Los adjuntos se abren en pestaña solo si son PDF, imagen o texto plano; el
+  resto se descarga (evita que un archivo HTML/SVG ejecute código en la app).
 - «Reinscribir» reinicia el avance de la persona en el curso para la
   recertificación; los certificados anteriores quedan en el historial.

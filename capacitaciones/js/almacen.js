@@ -42,12 +42,17 @@
     };
   }
 
-  // Rellena claves faltantes tras importar o al actualizar versiones.
+  // Rellena claves faltantes y normaliza estructuras tras importar o al
+  // actualizar versiones, para que el resto de la app nunca reciba datos a medias.
   function completarDatos(d) {
     var base = crearDatosIniciales();
     d = d && typeof d === 'object' ? d : {};
     Object.keys(base).forEach(function (k) {
-      if (d[k] === undefined) d[k] = base[k];
+      if (Array.isArray(base[k])) {
+        if (!Array.isArray(d[k])) d[k] = base[k];
+      } else if (d[k] === undefined || d[k] === null || typeof d[k] !== typeof base[k]) {
+        d[k] = base[k];
+      }
     });
     Object.keys(base.config).forEach(function (k) {
       if (d.config[k] === undefined) d.config[k] = base.config[k];
@@ -57,6 +62,33 @@
     if (!Array.isArray(d.config.categorias) || !d.config.categorias.length) {
       d.config.categorias = base.config.categorias;
     }
+
+    d.cursos.forEach(function (c) {
+      if (!Array.isArray(c.modulos)) c.modulos = [];
+      if (!Array.isArray(c.materialIds)) c.materialIds = [];
+      if (!c.evaluacion || typeof c.evaluacion !== 'object') c.evaluacion = {};
+      if (!Array.isArray(c.evaluacion.preguntas)) c.evaluacion.preguntas = [];
+      if (typeof c.evaluacion.notaAprobacion !== 'number') {
+        c.evaluacion.notaAprobacion = d.config.notaAprobacionDefecto || 70;
+      }
+      c.evaluacion.activa = !!c.evaluacion.activa;
+    });
+    d.inscripciones.forEach(function (i) {
+      if (!Array.isArray(i.modulosCompletados)) i.modulosCompletados = [];
+      if (!Array.isArray(i.intentos)) i.intentos = [];
+    });
+    d.programas.forEach(function (pr) {
+      if (!Array.isArray(pr.cursoIds)) pr.cursoIds = [];
+      if (!Array.isArray(pr.personaIds)) pr.personaIds = [];
+    });
+    if (!d.secuencias || typeof d.secuencias !== 'object') d.secuencias = { folio: 0 };
+    // El correlativo nunca puede quedar por debajo de los folios ya emitidos.
+    var maxFolio = 0;
+    d.certificados.forEach(function (c) {
+      var n = Number(String(c.folio || '').split('-').pop());
+      if (n > maxFolio) maxFolio = n;
+    });
+    if (!(d.secuencias.folio >= maxFolio)) d.secuencias.folio = maxFolio;
     return d;
   }
 
@@ -99,7 +131,10 @@
     importarJSON: function (texto) {
       var obj = JSON.parse(texto);
       var datos = obj && obj.app === 'capacitaciones' ? obj.datos : obj;
-      if (!datos || typeof datos !== 'object' || !Array.isArray(datos.cursos)) {
+      var coleccionesObligatorias = ['personas', 'cursos', 'programas', 'inscripciones', 'certificados'];
+      var valido = datos && typeof datos === 'object' &&
+        coleccionesObligatorias.every(function (k) { return Array.isArray(datos[k]); });
+      if (!valido) {
         throw new Error('El archivo no parece un respaldo de esta aplicación.');
       }
       var claveActual = (this.datos && this.datos.config && this.datos.config.ia && this.datos.config.ia.clave) || '';
@@ -112,6 +147,7 @@
     restablecer: function () {
       this.datos = crearDatosIniciales();
       this.guardar();
+      return this.vaciarArchivos();
     },
 
     /* ---------- archivos binarios (IndexedDB) ---------- */
@@ -162,6 +198,17 @@
           tx.onerror = function () { resolver(); };
         });
       });
+    },
+
+    vaciarArchivos: function () {
+      return this.abrirBD().then(function (bd) {
+        return new Promise(function (resolver) {
+          var tx = bd.transaction(BD_ALMACEN, 'readwrite');
+          tx.objectStore(BD_ALMACEN).clear();
+          tx.oncomplete = function () { resolver(); };
+          tx.onerror = function () { resolver(); };
+        });
+      }).catch(function () { });
     },
 
     // Registra el archivo en los datos y guarda el blob. Devuelve la ficha.

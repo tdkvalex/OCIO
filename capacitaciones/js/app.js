@@ -6,7 +6,13 @@
   var L = window.Logica;
 
   function D() { return Almacen.datos; }
-  function guardar() { Almacen.guardar(); }
+  function guardar() {
+    if (!Almacen.guardar()) {
+      toast('No se pudieron guardar los cambios: el almacenamiento del navegador está lleno. Exporta un respaldo y libera espacio.', true);
+      return false;
+    }
+    return true;
+  }
 
   // Estado de navegación (no persistente, salvo lo que se copia a Almacen.ui).
   var estado = {
@@ -181,16 +187,30 @@
     return cert;
   }
 
+  // Recorre todas las inscripciones y cierra las que quedaron completas por un
+  // cambio en el curso (p. ej. el admin quitó la evaluación o el último módulo).
+  function reconciliarInscripciones() {
+    var emitidos = 0;
+    D().inscripciones.forEach(function (insc) {
+      if (completarSiCorresponde(insc, true)) emitidos++;
+    });
+    if (emitidos) guardar();
+    return emitidos;
+  }
+
   // Si la inscripción quedó completa, registra fecha, vencimiento y certificado.
-  function completarSiCorresponde(insc) {
+  function completarSiCorresponde(insc, sinGuardar) {
     var c = curso(insc.cursoId);
     var p = persona(insc.personaId);
     if (!c || !p || insc.completadoEn) return null;
+    // Solo se cierra si la persona hizo algo: un curso recién asignado con cero
+    // módulos y sin evaluación no debe autocompletarse.
+    if (!insc.modulosCompletados.length && !insc.intentos.length) return null;
     if (!L.cursoCompletado(c, insc)) return null;
     insc.completadoEn = L.hoyISO();
     insc.venceEn = L.calcularVencimiento(insc.completadoEn, c.vigenciaMeses);
     var cert = emitirCertificado(insc, c, p);
-    guardar();
+    if (!sinGuardar) guardar();
     return cert;
   }
 
@@ -210,6 +230,8 @@
   }
 
   acciones.salirModo = function () {
+    if (estado.examen && !estado.examen.resultado &&
+      !confirmar('Tienes una evaluación en curso. ¿Salir? Las respuestas se perderán.')) return;
     estado.modo = 'inicio';
     estado.examen = null;
     estado.cursoAbiertoId = null;
@@ -595,6 +617,7 @@
     c.horas = Number(form.horas.value) || 0;
     c.vigenciaMeses = Math.max(0, Math.round(Number(form.vigenciaMeses.value) || 0));
     guardar();
+    reconciliarInscripciones();
     toast('Curso guardado.');
     render();
   };
@@ -618,6 +641,8 @@
     if (!c) return;
     var inscs = D().inscripciones.filter(function (i) { return i.cursoId === id; }).length;
     if (!confirmar('¿Eliminar el curso «' + c.titulo + '»?' + (inscs ? ' Se borrarán ' + inscs + ' inscripciones (los certificados emitidos se conservan).' : ''))) return;
+    (c.modulos || []).forEach(function (m) { olvidarArchivo(m.archivoId); });
+    (c.materialIds || []).forEach(olvidarArchivo);
     D().cursos = D().cursos.filter(function (x) { return x.id !== id; });
     D().inscripciones = D().inscripciones.filter(function (i) { return i.cursoId !== id; });
     D().programas.forEach(function (pr) {
@@ -628,6 +653,13 @@
     toast('Curso eliminado.');
     render();
   };
+
+  // Borra el blob de IndexedDB y su ficha en los datos, para no dejar huérfanos.
+  function olvidarArchivo(id) {
+    if (!id) return;
+    D().archivos = D().archivos.filter(function (a) { return a.id !== id; });
+    Almacen.eliminarArchivo(id);
+  }
 
   /* ---------- módulos ---------- */
 
@@ -692,28 +724,38 @@
   formularios.guardarModulo = function (form) {
     var c = curso(form.getAttribute('data-curso'));
     if (!c) return;
+    var tipo = form.tipo.value;
+    var videoUrl = form.videoUrl.value.trim();
+    var enlaceUrl = form.enlaceUrl.value.trim();
+    var archivoVideo = form.videoArchivo.files[0];
+    var archivoAdjunto = form.archivoAdjunto.files[0];
+    var subir = (tipo === 'video' && archivoVideo) || (tipo === 'archivo' && archivoAdjunto) || null;
+
+    // Validar antes de tocar los datos: si algo falla no queda un módulo a medias.
+    if (subir && subir.size > 250 * 1048576) { toast('El archivo supera los 250 MB.', true); return; }
+    if (tipo === 'enlace' && !/^https?:\/\//i.test(enlaceUrl)) {
+      toast('El enlace debe comenzar con http:// o https://', true); return;
+    }
+    if (tipo === 'video' && videoUrl && !L.analizarVideoUrl(videoUrl)) {
+      toast('El enlace del video no es válido.', true); return;
+    }
+
     var id = form.getAttribute('data-id');
     var m = id ? c.modulos.find(function (x) { return x.id === id; }) : null;
-    if (!m) {
-      m = { id: L.crearId('mod') };
-      c.modulos.push(m);
-    }
+    var esNuevo = !m;
+    if (!m) m = { id: L.crearId('mod') };
+
+    var archivoAnterior = m.archivoId || null;
     m.titulo = form.titulo.value.trim() || 'Módulo';
-    m.tipo = form.tipo.value;
+    m.tipo = tipo;
     m.duracionMin = Number(form.duracionMin.value) || 0;
     m.indicaciones = form.indicaciones.value.trim();
     m.contenido = form.contenido.value;
-    m.videoUrl = form.videoUrl.value.trim();
-    m.enlaceUrl = form.enlaceUrl.value.trim();
+    m.videoUrl = videoUrl;
+    m.enlaceUrl = enlaceUrl;
 
     var promesa = Promise.resolve();
-    var archivoVideo = form.videoArchivo.files[0];
-    var archivoAdjunto = form.archivoAdjunto.files[0];
-    var subir = null;
-    if (m.tipo === 'video' && archivoVideo) subir = archivoVideo;
-    if (m.tipo === 'archivo' && archivoAdjunto) subir = archivoAdjunto;
     if (subir) {
-      if (subir.size > 250 * 1048576) { toast('El archivo supera los 250 MB.', true); return; }
       var ficha = {
         id: L.crearId('arc'), nombre: subir.name, tipo: subir.type || 'application/octet-stream',
         tamano: subir.size, creadoEn: L.hoyISO()
@@ -721,10 +763,21 @@
       promesa = Almacen.registrarArchivo(ficha, subir).then(function () {
         m.archivoId = ficha.id;
         if (m.tipo === 'video') m.videoUrl = '';
+        if (archivoAnterior) olvidarArchivo(archivoAnterior);
       });
+    } else if (m.tipo === 'video' && videoUrl && archivoAnterior) {
+      // Se cambió el video subido por un enlace: el archivo ya no se usa.
+      m.archivoId = null;
+      olvidarArchivo(archivoAnterior);
+    } else if (m.tipo !== 'video' && m.tipo !== 'archivo' && archivoAnterior) {
+      m.archivoId = null;
+      olvidarArchivo(archivoAnterior);
     }
+
     promesa.then(function () {
+      if (esNuevo) c.modulos.push(m);
       guardar();
+      reconciliarInscripciones();
       cerrarModal();
       toast('Módulo guardado.');
       render();
@@ -752,9 +805,10 @@
     var id = el.getAttribute('data-id');
     var m = c.modulos.find(function (x) { return x.id === id; });
     if (!m || !confirmar('¿Eliminar el módulo «' + m.titulo + '»?')) return;
-    if (m.archivoId) Almacen.eliminarArchivo(m.archivoId);
+    olvidarArchivo(m.archivoId);
     c.modulos = c.modulos.filter(function (x) { return x.id !== id; });
     guardar();
+    reconciliarInscripciones();
     render();
   };
 
@@ -802,6 +856,7 @@
     if (!c) return;
     c.evaluacion.activa = el.checked;
     guardar();
+    reconciliarInscripciones();
     render();
   };
 
@@ -934,6 +989,7 @@
     var id = el.getAttribute('data-id');
     c.evaluacion.preguntas = c.evaluacion.preguntas.filter(function (p) { return p.id !== id; });
     guardar();
+    reconciliarInscripciones();
     render();
   };
 
@@ -1002,7 +1058,7 @@
       a.href = url; a.download = ficha ? ficha.nombre : 'archivo';
       document.body.appendChild(a); a.click(); a.remove();
       setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
-    });
+    }).catch(function () { toast('No se pudo leer el archivo desde este dispositivo.', true); });
   };
 
   acciones.quitarMaterial = function (el) {
@@ -1010,8 +1066,7 @@
     if (!c || !confirmar('¿Quitar este material del curso?')) return;
     var id = el.getAttribute('data-id');
     c.materialIds = (c.materialIds || []).filter(function (x) { return x !== id; });
-    D().archivos = D().archivos.filter(function (a) { return a.id !== id; });
-    Almacen.eliminarArchivo(id);
+    olvidarArchivo(id);
     guardar();
     render();
   };
@@ -1019,7 +1074,12 @@
   /* ---------- inscripciones ---------- */
 
   function inscribir(personaId, cursoId, programaId) {
-    if (inscripcionDe(personaId, cursoId)) return false;
+    var existente = inscripcionDe(personaId, cursoId);
+    if (existente) {
+      // Ya estaba inscrita: si venía suelta, queda vinculada al programa.
+      if (programaId && !existente.programaId) existente.programaId = programaId;
+      return false;
+    }
     D().inscripciones.push({
       id: L.crearId('ins'), personaId: personaId, cursoId: cursoId,
       programaId: programaId || null, modulosCompletados: [], intentos: [],
@@ -1064,6 +1124,7 @@
     if (!confirmar('¿Quitar la inscripción de ' + (p ? p.nombre : 'esta persona') + '? Su avance en este curso se perderá.')) return;
     D().inscripciones = D().inscripciones.filter(function (i) { return i.id !== insc.id; });
     guardar();
+    cerrarModal();
     render();
   };
 
@@ -1144,7 +1205,14 @@
     pr.descripcion = form.descripcion.value.trim();
     pr.obligatorio = form.obligatorio.checked;
     pr.cursoIds = Array.prototype.map.call(form.querySelectorAll('input[name="c"]:checked'), function (x) { return x.value; });
-    pr.personaIds = Array.prototype.map.call(form.querySelectorAll('input[name="p"]:checked'), function (x) { return x.value; });
+    var marcadas = Array.prototype.map.call(form.querySelectorAll('input[name="p"]:checked'), function (x) { return x.value; });
+    // El formulario solo lista personas activas: se conservan las inactivas
+    // que ya estaban en el programa.
+    var inactivasPrevias = (pr.personaIds || []).filter(function (id) {
+      var per = persona(id);
+      return per && per.activo === false;
+    });
+    pr.personaIds = marcadas.concat(inactivasPrevias.filter(function (id) { return marcadas.indexOf(id) === -1; }));
     var nuevas = 0;
     pr.personaIds.forEach(function (pid) {
       pr.cursoIds.forEach(function (cid) {
@@ -1172,6 +1240,9 @@
   function filasFiltradas() {
     var filas = L.filasSeguimiento(D());
     var f = estado.filtros;
+    // Un filtro que apunta a algo eliminado se descarta en vez de ocultarlo todo.
+    if (f.curso && !curso(f.curso)) f.curso = '';
+    if (f.categoria && !categoria(f.categoria)) f.categoria = '';
     return filas.filter(function (fila) {
       if (f.curso && fila.cursoId !== f.curso) return false;
       if (f.categoria && fila.categoriaId !== f.categoria) return false;
@@ -1478,7 +1549,7 @@
 
     html += '</div>'; // fin grilla
 
-    if (ocupado || estado.ia.salida) {
+    if ((ocupado && estado.ia.tipoSalida) || estado.ia.salida) {
       html += '<div class="tarjeta"><div class="fila-botones" style="justify-content:space-between">' +
         '<h3 style="margin:0">' + (ocupado ? '<span class="girando"></span> Generando…' : 'Resultado') + '</h3>' +
         (ocupado
@@ -1586,10 +1657,7 @@
     var id = el.getAttribute('data-id');
     var f = (D().iaFuentes || []).find(function (x) { return x.id === id; });
     if (!f) return;
-    if (f.archivoId) {
-      Almacen.eliminarArchivo(f.archivoId);
-      D().archivos = D().archivos.filter(function (a) { return a.id !== f.archivoId; });
-    }
+    olvidarArchivo(f.archivoId);
     D().iaFuentes = D().iaFuentes.filter(function (x) { return x.id !== id; });
     guardar();
     render();
@@ -1598,17 +1666,23 @@
   // Prepara las fuentes para la API: los PDF se leen de IndexedDB a base64.
   function prepararFuentes() {
     var fuentes = D().iaFuentes || [];
+    var faltantes = [];
     return Promise.all(fuentes.map(function (f) {
       if (f.tipo === 'pdf' && f.archivoId) {
         return Almacen.obtenerArchivo(f.archivoId).then(function (blob) {
-          if (!blob) return null;
+          if (!blob) { faltantes.push(f.nombre); return null; }
           return leerArchivo(blob).then(function (dataUrl) {
             return { tipo: 'pdf', nombre: f.nombre, base64: String(dataUrl).split(',')[1] || '' };
           });
         });
       }
       return Promise.resolve({ tipo: 'texto', nombre: f.nombre, texto: f.texto });
-    })).then(function (lista) { return lista.filter(Boolean); });
+    })).then(function (lista) {
+      if (faltantes.length) {
+        toast('No están en este dispositivo y se omitieron: ' + faltantes.join(', '), true);
+      }
+      return lista.filter(Boolean);
+    });
   }
 
   function iniciarTrabajoIA(tipoSalida) {
@@ -1687,11 +1761,15 @@
         p.correctas.every(function (i) { return i >= 0 && i < p.opciones.length; });
     }).map(function (p) {
       var tipo = ['unica', 'multiple', 'vf'].indexOf(p.tipo) !== -1 ? p.tipo : 'unica';
+      var opciones = p.opciones.map(String);
       var correctas = p.correctas.map(Number);
+      // Una V/F con distinto número de opciones pasa a ser de alternativa única,
+      // que es lo que realmente es (así queda editable y válida).
+      if (tipo === 'vf' && opciones.length !== 2) tipo = 'unica';
       if ((tipo === 'unica' || tipo === 'vf') && correctas.length > 1) correctas = [correctas[0]];
       return {
         id: L.crearId('preg'), tipo: tipo, texto: String(p.texto),
-        opciones: p.opciones.map(String), correctas: correctas,
+        opciones: opciones, correctas: correctas,
         explicacion: String(p.explicacion || '')
       };
     });
@@ -1855,6 +1933,7 @@
     estado.ia.chat.push({ rol: 'usuario', texto: pregunta });
     estado.ia.chat.push({ rol: 'asistente', texto: '…' });
     estado.ia.ocupado = true;
+    estado.ia.tipoSalida = null;
     estado.ia.controlador = new AbortController();
     render();
     var indiceRespuesta = estado.ia.chat.length - 1;
@@ -1878,7 +1957,9 @@
       terminarTrabajoIA();
       render();
     }).catch(function (e) {
-      estado.ia.chat.splice(indiceRespuesta, 1);
+      // Se quitan la respuesta vacía y la pregunta, para no dejar dos turnos
+      // «user» seguidos en el historial que se envía a la API.
+      estado.ia.chat.splice(indiceRespuesta - 1, 2);
       terminarTrabajoIA();
       toast(e.message || 'Error en la conversación.', true);
       render();
@@ -1964,6 +2045,7 @@
     if (!archivo) return;
     if (archivo.size > 512 * 1024) { toast('Usa un logo de menos de 500 KB.', true); return; }
     leerArchivo(archivo).then(function (dataUrl) {
+      if (!/^data:image\//i.test(dataUrl)) { toast('El archivo no es una imagen válida.', true); return; }
       D().config.logo = dataUrl;
       guardar();
       toast('Logo actualizado.');
@@ -2068,11 +2150,13 @@
   acciones.restablecerTodo = function () {
     if (!confirmar('Esto BORRA todos los datos de la aplicación en este dispositivo (personas, cursos, inscripciones y certificados). ¿Continuar?')) return;
     if (!confirmar('Última confirmación: ¿borrar todo definitivamente?')) return;
-    Almacen.restablecer();
-    aplicarColores();
-    estado.vistaAdmin = 'panel';
-    toast('Aplicación restablecida.');
-    render();
+    Promise.resolve(Almacen.restablecer()).then(function () {
+      aplicarColores();
+      estado.vistaAdmin = 'panel';
+      estado.cursoEditId = null;
+      toast('Aplicación restablecida.');
+      render();
+    });
   };
 
   /* ---------- colaborador ---------- */
@@ -2134,9 +2218,14 @@
   };
 
   acciones.cambiarPersona = function () {
+    if (estado.examen && !estado.examen.resultado &&
+      !confirmar('Tienes una evaluación en curso. ¿Salir? Las respuestas se perderán.')) return;
     estado.colabPersonaId = null;
     estado.cursoAbiertoId = null;
     estado.examen = null;
+    estado.busquedaPersona = '';
+    Almacen.ui.colabPersonaId = null;
+    Almacen.guardarUI();
     render();
   };
 
@@ -2356,11 +2445,25 @@
     render();
   };
 
+  // Tipos que el navegador puede mostrar sin ejecutar código en el origen de
+  // la app. Cualquier otro (HTML, SVG, etc.) se descarga en lugar de abrirse.
+  var TIPOS_VISTA_SEGURA = /^(application\/pdf|image\/(png|jpeg|gif|webp|bmp)|text\/plain)$/i;
+
   acciones.abrirArchivoModulo = function (el) {
-    Almacen.obtenerArchivo(el.getAttribute('data-id')).then(function (blob) {
+    var id = el.getAttribute('data-id');
+    var ficha = Almacen.fichaArchivo(id);
+    if (!ficha || !TIPOS_VISTA_SEGURA.test(ficha.tipo || '')) {
+      acciones.descargarMaterial(el);
+      return;
+    }
+    Almacen.obtenerArchivo(id).then(function (blob) {
       if (!blob) { toast('El archivo no está en este dispositivo.', true); return; }
-      window.open(urlTemporal(blob), '_blank');
-    });
+      // URL propia: no entra en la lista temporal para que el siguiente render
+      // no la revoque mientras la pestaña sigue abierta.
+      var url = URL.createObjectURL(blob);
+      window.open(url, '_blank', 'noopener');
+      setTimeout(function () { URL.revokeObjectURL(url); }, 60000);
+    }).catch(function () { toast('No se pudo abrir el archivo.', true); });
   };
 
   acciones.completarModulo = function (el) {
@@ -2655,6 +2758,7 @@
       }
     }
 
+    reconciliarInscripciones();
     render();
   }
 

@@ -42,7 +42,7 @@
     }
 
     var lineaHoras = cert.horas
-      ? 'con una duración de ' + cert.horas + ' hora' + (Number(cert.horas) === 1 ? '' : 's') + ' cronológicas'
+      ? 'con una duración de ' + esc(cert.horas) + ' hora' + (Number(cert.horas) === 1 ? '' : 's') + ' cronológicas'
       : '';
     var lineaVigencia = cert.venceEn
       ? 'Válido hasta el ' + fechaLarga(cert.venceEn)

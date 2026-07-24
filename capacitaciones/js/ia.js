@@ -58,6 +58,21 @@
     properties: { preguntas: { type: 'array', items: ESQUEMA_PREGUNTA } }
   };
 
+  // Tamaño aproximado de la petición; la API rechaza sobre 32 MB.
+  function pesoAproximado(fuentes) {
+    var bytes = 0;
+    (fuentes || []).forEach(function (f) {
+      bytes += f.base64 ? f.base64.length : (f.texto || '').length;
+    });
+    return bytes;
+  }
+
+  function comprobarPeso(fuentes) {
+    if (pesoAproximado(fuentes) > 30 * 1048576) {
+      throw new Error('Las fuentes seleccionadas superan el tamaño máximo que acepta la API (32 MB). Quita algún PDF y vuelve a intentarlo.');
+    }
+  }
+
   // Convierte las fuentes ({tipo:'texto'|'pdf', nombre, texto|base64}) en
   // bloques de contenido de la API. Los PDF van como bloques `document`.
   function fuentesABloques(fuentes) {
@@ -123,6 +138,10 @@
       headers: cabeceras,
       body: JSON.stringify(cuerpo),
       signal: opciones.senal
+    }).catch(function (e) {
+      // Solo aquí un TypeError significa realmente «no se pudo conectar».
+      if (e && e.name === 'AbortError') throw new Error('Generación cancelada.');
+      throw new Error('No se pudo conectar con la API de Claude. Revisa tu conexión a internet.');
     }).then(function (res) {
       if (!res.ok) {
         return res.json().catch(function () { return null; }).then(function (json) {
@@ -163,6 +182,9 @@
             if (stopReason === 'max_tokens') {
               throw new Error('La respuesta superó el largo máximo. Pide menos módulos o preguntas, o divide las fuentes.');
             }
+            if (stopReason !== 'end_turn' && stopReason !== 'stop_sequence') {
+              throw new Error('La respuesta se interrumpió antes de terminar (' + (stopReason || 'conexión cortada') + '). Inténtalo de nuevo.');
+            }
             return { texto: texto, stopReason: stopReason };
           }
           pendiente += decodificador.decode(r.value, { stream: true });
@@ -175,9 +197,6 @@
       return leer();
     }).catch(function (e) {
       if (e && e.name === 'AbortError') throw new Error('Generación cancelada.');
-      if (e instanceof TypeError) {
-        throw new Error('No se pudo conectar con la API de Claude. Revisa tu conexión a internet.');
-      }
       throw e;
     });
   }
@@ -202,6 +221,7 @@
     'aparece en ellas, no lo inventes.';
 
   function generarCurso(op) {
+    comprobarPeso(op.fuentes);
     var indicacion = 'Con las fuentes entregadas, diseña un curso de capacitación completo.' +
       '\n- Cantidad de módulos: ' + (op.numModulos || 'entre 3 y 6, según el material') + '.' +
       '\n- Cada módulo debe tener contenido pedagógico completo y autosuficiente (no un simple índice): explica los conceptos, da ejemplos concretos y cierra con puntos clave.' +
@@ -211,12 +231,13 @@
     var contenido = fuentesABloques(op.fuentes).concat([{ type: 'text', text: indicacion }]);
     return llamar({
       clave: op.clave, modelo: op.modelo, system: SYSTEM_BASE,
-      maxTokens: 32000, esquema: ESQUEMA_CURSO, onDelta: op.onDelta, senal: op.senal,
+      maxTokens: 64000, esquema: ESQUEMA_CURSO, onDelta: op.onDelta, senal: op.senal,
       mensajes: [{ role: 'user', content: contenido }]
     }).then(function (r) { return extraerJSON(r.texto); });
   }
 
   function generarPreguntas(op) {
+    comprobarPeso(op.fuentes);
     var indicacion = 'Redacta ' + (op.cantidad || 8) + ' preguntas de evaluación sobre el material entregado. ' +
       'Mezcla alternativa única, selección múltiple y verdadero/falso. ' +
       'En verdadero/falso las opciones deben ser exactamente ["Verdadero", "Falso"]. ' +
@@ -225,7 +246,7 @@
     var contenido = fuentesABloques(op.fuentes).concat([{ type: 'text', text: indicacion }]);
     return llamar({
       clave: op.clave, modelo: op.modelo, system: SYSTEM_BASE,
-      maxTokens: 16000, esquema: ESQUEMA_EVALUACION, onDelta: op.onDelta, senal: op.senal,
+      maxTokens: 32000, esquema: ESQUEMA_EVALUACION, onDelta: op.onDelta, senal: op.senal,
       mensajes: [{ role: 'user', content: contenido }]
     }).then(function (r) { return extraerJSON(r.texto); });
   }
@@ -237,12 +258,13 @@
   };
 
   function generarDocumento(op) {
+    comprobarPeso(op.fuentes);
     var indicacion = DOCUMENTOS[op.tipo] || DOCUMENTOS.resumen;
     if (op.indicaciones) indicacion += '\nIndicaciones adicionales: ' + op.indicaciones;
     var contenido = fuentesABloques(op.fuentes).concat([{ type: 'text', text: indicacion }]);
     return llamar({
       clave: op.clave, modelo: op.modelo, system: SYSTEM_BASE,
-      maxTokens: 16000, onDelta: op.onDelta, senal: op.senal,
+      maxTokens: 32000, onDelta: op.onDelta, senal: op.senal,
       mensajes: [{ role: 'user', content: contenido }]
     }).then(function (r) { return r.texto; });
   }
@@ -250,6 +272,7 @@
   // Conversación sobre las fuentes. historial: [{rol:'usuario'|'asistente', texto}]
   // (el último elemento debe ser la pregunta del usuario).
   function chat(op) {
+    comprobarPeso(op.fuentes);
     var mensajes = [];
     (op.historial || []).forEach(function (m, i) {
       var contenido;

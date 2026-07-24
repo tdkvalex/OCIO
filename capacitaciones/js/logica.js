@@ -124,7 +124,10 @@
     });
     var total = preguntas.length;
     var puntaje = total ? Math.round((correctas / total) * 1000) / 10 : 0;
-    var notaMinima = Number(evaluacion && evaluacion.notaAprobacion) || 0;
+    // Si la nota mínima no es válida no se aprueba nada (evita que un curso
+    // mal configurado o importado dé por aprobado cualquier intento).
+    var notaMinima = Number(evaluacion && evaluacion.notaAprobacion);
+    if (!(notaMinima >= 0 && notaMinima <= 100)) notaMinima = 101;
     return {
       total: total,
       correctas: correctas,
@@ -335,6 +338,9 @@
       }
       if (m.tipo === 'archivo' && !m.archivoId) {
         errores.push('Módulo ' + (i + 1) + ': falta adjuntar el archivo.');
+      }
+      if (m.tipo === 'enlace' && !/^https?:\/\//i.test(m.enlaceUrl || '')) {
+        errores.push('Módulo ' + (i + 1) + ': falta el enlace (debe comenzar con http:// o https://).');
       }
     });
     if (requiereEvaluacion(curso)) {

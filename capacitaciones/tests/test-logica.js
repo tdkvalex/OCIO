@@ -200,6 +200,13 @@ igual(lineasCsv[0], 'Nombre;Nota', 'encabezado con ;');
 igual(lineasCsv[1], '"Pérez; Juan";95', 'campo con ; va entre comillas');
 igual(lineasCsv[2], '"Con ""comillas""";', 'comillas dobles escapadas y null vacío');
 
+/* ---------- robustez ante datos corruptos ---------- */
+seccion('Robustez');
+const evalSinNota = { activa: true, preguntas: [{ id: 'x', tipo: 'unica', texto: 'q', opciones: ['a', 'b'], correctas: [0] }] };
+ok(!L.corregirEvaluacion(evalSinNota, { x: [0] }).aprobado, 'sin nota mínima válida no se aprueba (falla cerrado)');
+ok(!L.corregirEvaluacion({ notaAprobacion: 'abc', preguntas: evalSinNota.preguntas }, { x: [0] }).aprobado, 'nota mínima no numérica no aprueba');
+igual(L.corregirEvaluacion({ notaAprobacion: 100, preguntas: evalSinNota.preguntas }, { x: [0] }).aprobado, true, 'nota mínima 100 con 100% sí aprueba');
+
 /* ---------- validación de cursos ---------- */
 seccion('Validación de cursos');
 igual(L.validarCurso(Object.assign({}, curso, { titulo: 'Ok' })), [], 'curso válido');
@@ -208,6 +215,11 @@ ok(L.validarCurso({ titulo: 'X', modulos: [{ id: 'm', titulo: 'V', tipo: 'video'
   .some(function (e) { return e.indexOf('video') !== -1; }), 'módulo video sin fuente');
 ok(L.validarCurso({ titulo: 'X', modulos: [{ id: 'm', titulo: 'A', tipo: 'archivo' }] })
   .some(function (e) { return e.indexOf('archivo') !== -1; }), 'módulo archivo sin adjunto');
+ok(L.validarCurso({ titulo: 'X', modulos: [{ id: 'm', titulo: 'E', tipo: 'enlace' }] })
+  .some(function (e) { return e.indexOf('enlace') !== -1; }), 'módulo enlace vacío');
+ok(L.validarCurso({ titulo: 'X', modulos: [{ id: 'm', titulo: 'E', tipo: 'enlace', enlaceUrl: 'javascript:alert(1)' }] })
+  .some(function (e) { return e.indexOf('enlace') !== -1; }), 'módulo enlace con esquema no http');
+igual(L.validarCurso({ titulo: 'X', modulos: [{ id: 'm', titulo: 'E', tipo: 'enlace', enlaceUrl: 'https://ok.cl/g' }] }), [], 'módulo enlace https válido');
 
 /* ---------- videos externos ---------- */
 seccion('Videos externos');

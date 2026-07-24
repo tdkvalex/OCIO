@@ -550,7 +550,10 @@ window.addEventListener('error', function (e) {
     });
     var total = preguntas.length;
     var puntaje = total ? Math.round((correctas / total) * 1000) / 10 : 0;
-    var notaMinima = Number(evaluacion && evaluacion.notaAprobacion) || 0;
+    // Si la nota mínima no es válida no se aprueba nada (evita que un curso
+    // mal configurado o importado dé por aprobado cualquier intento).
+    var notaMinima = Number(evaluacion && evaluacion.notaAprobacion);
+    if (!(notaMinima >= 0 && notaMinima <= 100)) notaMinima = 101;
     return {
       total: total,
       correctas: correctas,
@@ -762,6 +765,9 @@ window.addEventListener('error', function (e) {
       if (m.tipo === 'archivo' && !m.archivoId) {
         errores.push('Módulo ' + (i + 1) + ': falta adjuntar el archivo.');
       }
+      if (m.tipo === 'enlace' && !/^https?:\/\//i.test(m.enlaceUrl || '')) {
+        errores.push('Módulo ' + (i + 1) + ': falta el enlace (debe comenzar con http:// o https://).');
+      }
     });
     if (requiereEvaluacion(curso)) {
       errores = errores.concat(validarEvaluacion(curso.evaluacion));
@@ -860,12 +866,17 @@ window.addEventListener('error', function (e) {
     };
   }
 
-  // Rellena claves faltantes tras importar o al actualizar versiones.
+  // Rellena claves faltantes y normaliza estructuras tras importar o al
+  // actualizar versiones, para que el resto de la app nunca reciba datos a medias.
   function completarDatos(d) {
     var base = crearDatosIniciales();
     d = d && typeof d === 'object' ? d : {};
     Object.keys(base).forEach(function (k) {
-      if (d[k] === undefined) d[k] = base[k];
+      if (Array.isArray(base[k])) {
+        if (!Array.isArray(d[k])) d[k] = base[k];
+      } else if (d[k] === undefined || d[k] === null || typeof d[k] !== typeof base[k]) {
+        d[k] = base[k];
+      }
     });
     Object.keys(base.config).forEach(function (k) {
       if (d.config[k] === undefined) d.config[k] = base.config[k];
@@ -875,6 +886,33 @@ window.addEventListener('error', function (e) {
     if (!Array.isArray(d.config.categorias) || !d.config.categorias.length) {
       d.config.categorias = base.config.categorias;
     }
+
+    d.cursos.forEach(function (c) {
+      if (!Array.isArray(c.modulos)) c.modulos = [];
+      if (!Array.isArray(c.materialIds)) c.materialIds = [];
+      if (!c.evaluacion || typeof c.evaluacion !== 'object') c.evaluacion = {};
+      if (!Array.isArray(c.evaluacion.preguntas)) c.evaluacion.preguntas = [];
+      if (typeof c.evaluacion.notaAprobacion !== 'number') {
+        c.evaluacion.notaAprobacion = d.config.notaAprobacionDefecto || 70;
+      }
+      c.evaluacion.activa = !!c.evaluacion.activa;
+    });
+    d.inscripciones.forEach(function (i) {
+      if (!Array.isArray(i.modulosCompletados)) i.modulosCompletados = [];
+      if (!Array.isArray(i.intentos)) i.intentos = [];
+    });
+    d.programas.forEach(function (pr) {
+      if (!Array.isArray(pr.cursoIds)) pr.cursoIds = [];
+      if (!Array.isArray(pr.personaIds)) pr.personaIds = [];
+    });
+    if (!d.secuencias || typeof d.secuencias !== 'object') d.secuencias = { folio: 0 };
+    // El correlativo nunca puede quedar por debajo de los folios ya emitidos.
+    var maxFolio = 0;
+    d.certificados.forEach(function (c) {
+      var n = Number(String(c.folio || '').split('-').pop());
+      if (n > maxFolio) maxFolio = n;
+    });
+    if (!(d.secuencias.folio >= maxFolio)) d.secuencias.folio = maxFolio;
     return d;
   }
 
@@ -917,7 +955,10 @@ window.addEventListener('error', function (e) {
     importarJSON: function (texto) {
       var obj = JSON.parse(texto);
       var datos = obj && obj.app === 'capacitaciones' ? obj.datos : obj;
-      if (!datos || typeof datos !== 'object' || !Array.isArray(datos.cursos)) {
+      var coleccionesObligatorias = ['personas', 'cursos', 'programas', 'inscripciones', 'certificados'];
+      var valido = datos && typeof datos === 'object' &&
+        coleccionesObligatorias.every(function (k) { return Array.isArray(datos[k]); });
+      if (!valido) {
         throw new Error('El archivo no parece un respaldo de esta aplicación.');
       }
       var claveActual = (this.datos && this.datos.config && this.datos.config.ia && this.datos.config.ia.clave) || '';
@@ -930,6 +971,7 @@ window.addEventListener('error', function (e) {
     restablecer: function () {
       this.datos = crearDatosIniciales();
       this.guardar();
+      return this.vaciarArchivos();
     },
 
     /* ---------- archivos binarios (IndexedDB) ---------- */
@@ -980,6 +1022,17 @@ window.addEventListener('error', function (e) {
           tx.onerror = function () { resolver(); };
         });
       });
+    },
+
+    vaciarArchivos: function () {
+      return this.abrirBD().then(function (bd) {
+        return new Promise(function (resolver) {
+          var tx = bd.transaction(BD_ALMACEN, 'readwrite');
+          tx.objectStore(BD_ALMACEN).clear();
+          tx.oncomplete = function () { resolver(); };
+          tx.onerror = function () { resolver(); };
+        });
+      }).catch(function () { });
     },
 
     // Registra el archivo en los datos y guarda el blob. Devuelve la ficha.
@@ -1060,6 +1113,21 @@ window.addEventListener('error', function (e) {
     properties: { preguntas: { type: 'array', items: ESQUEMA_PREGUNTA } }
   };
 
+  // Tamaño aproximado de la petición; la API rechaza sobre 32 MB.
+  function pesoAproximado(fuentes) {
+    var bytes = 0;
+    (fuentes || []).forEach(function (f) {
+      bytes += f.base64 ? f.base64.length : (f.texto || '').length;
+    });
+    return bytes;
+  }
+
+  function comprobarPeso(fuentes) {
+    if (pesoAproximado(fuentes) > 30 * 1048576) {
+      throw new Error('Las fuentes seleccionadas superan el tamaño máximo que acepta la API (32 MB). Quita algún PDF y vuelve a intentarlo.');
+    }
+  }
+
   // Convierte las fuentes ({tipo:'texto'|'pdf', nombre, texto|base64}) en
   // bloques de contenido de la API. Los PDF van como bloques `document`.
   function fuentesABloques(fuentes) {
@@ -1125,6 +1193,10 @@ window.addEventListener('error', function (e) {
       headers: cabeceras,
       body: JSON.stringify(cuerpo),
       signal: opciones.senal
+    }).catch(function (e) {
+      // Solo aquí un TypeError significa realmente «no se pudo conectar».
+      if (e && e.name === 'AbortError') throw new Error('Generación cancelada.');
+      throw new Error('No se pudo conectar con la API de Claude. Revisa tu conexión a internet.');
     }).then(function (res) {
       if (!res.ok) {
         return res.json().catch(function () { return null; }).then(function (json) {
@@ -1165,6 +1237,9 @@ window.addEventListener('error', function (e) {
             if (stopReason === 'max_tokens') {
               throw new Error('La respuesta superó el largo máximo. Pide menos módulos o preguntas, o divide las fuentes.');
             }
+            if (stopReason !== 'end_turn' && stopReason !== 'stop_sequence') {
+              throw new Error('La respuesta se interrumpió antes de terminar (' + (stopReason || 'conexión cortada') + '). Inténtalo de nuevo.');
+            }
             return { texto: texto, stopReason: stopReason };
           }
           pendiente += decodificador.decode(r.value, { stream: true });
@@ -1177,9 +1252,6 @@ window.addEventListener('error', function (e) {
       return leer();
     }).catch(function (e) {
       if (e && e.name === 'AbortError') throw new Error('Generación cancelada.');
-      if (e instanceof TypeError) {
-        throw new Error('No se pudo conectar con la API de Claude. Revisa tu conexión a internet.');
-      }
       throw e;
     });
   }
@@ -1204,6 +1276,7 @@ window.addEventListener('error', function (e) {
     'aparece en ellas, no lo inventes.';
 
   function generarCurso(op) {
+    comprobarPeso(op.fuentes);
     var indicacion = 'Con las fuentes entregadas, diseña un curso de capacitación completo.' +
       '\n- Cantidad de módulos: ' + (op.numModulos || 'entre 3 y 6, según el material') + '.' +
       '\n- Cada módulo debe tener contenido pedagógico completo y autosuficiente (no un simple índice): explica los conceptos, da ejemplos concretos y cierra con puntos clave.' +
@@ -1213,12 +1286,13 @@ window.addEventListener('error', function (e) {
     var contenido = fuentesABloques(op.fuentes).concat([{ type: 'text', text: indicacion }]);
     return llamar({
       clave: op.clave, modelo: op.modelo, system: SYSTEM_BASE,
-      maxTokens: 32000, esquema: ESQUEMA_CURSO, onDelta: op.onDelta, senal: op.senal,
+      maxTokens: 64000, esquema: ESQUEMA_CURSO, onDelta: op.onDelta, senal: op.senal,
       mensajes: [{ role: 'user', content: contenido }]
     }).then(function (r) { return extraerJSON(r.texto); });
   }
 
   function generarPreguntas(op) {
+    comprobarPeso(op.fuentes);
     var indicacion = 'Redacta ' + (op.cantidad || 8) + ' preguntas de evaluación sobre el material entregado. ' +
       'Mezcla alternativa única, selección múltiple y verdadero/falso. ' +
       'En verdadero/falso las opciones deben ser exactamente ["Verdadero", "Falso"]. ' +
@@ -1227,7 +1301,7 @@ window.addEventListener('error', function (e) {
     var contenido = fuentesABloques(op.fuentes).concat([{ type: 'text', text: indicacion }]);
     return llamar({
       clave: op.clave, modelo: op.modelo, system: SYSTEM_BASE,
-      maxTokens: 16000, esquema: ESQUEMA_EVALUACION, onDelta: op.onDelta, senal: op.senal,
+      maxTokens: 32000, esquema: ESQUEMA_EVALUACION, onDelta: op.onDelta, senal: op.senal,
       mensajes: [{ role: 'user', content: contenido }]
     }).then(function (r) { return extraerJSON(r.texto); });
   }
@@ -1239,12 +1313,13 @@ window.addEventListener('error', function (e) {
   };
 
   function generarDocumento(op) {
+    comprobarPeso(op.fuentes);
     var indicacion = DOCUMENTOS[op.tipo] || DOCUMENTOS.resumen;
     if (op.indicaciones) indicacion += '\nIndicaciones adicionales: ' + op.indicaciones;
     var contenido = fuentesABloques(op.fuentes).concat([{ type: 'text', text: indicacion }]);
     return llamar({
       clave: op.clave, modelo: op.modelo, system: SYSTEM_BASE,
-      maxTokens: 16000, onDelta: op.onDelta, senal: op.senal,
+      maxTokens: 32000, onDelta: op.onDelta, senal: op.senal,
       mensajes: [{ role: 'user', content: contenido }]
     }).then(function (r) { return r.texto; });
   }
@@ -1252,6 +1327,7 @@ window.addEventListener('error', function (e) {
   // Conversación sobre las fuentes. historial: [{rol:'usuario'|'asistente', texto}]
   // (el último elemento debe ser la pregunta del usuario).
   function chat(op) {
+    comprobarPeso(op.fuentes);
     var mensajes = [];
     (op.historial || []).forEach(function (m, i) {
       var contenido;
@@ -1328,7 +1404,7 @@ window.addEventListener('error', function (e) {
     }
 
     var lineaHoras = cert.horas
-      ? 'con una duración de ' + cert.horas + ' hora' + (Number(cert.horas) === 1 ? '' : 's') + ' cronológicas'
+      ? 'con una duración de ' + esc(cert.horas) + ' hora' + (Number(cert.horas) === 1 ? '' : 's') + ' cronológicas'
       : '';
     var lineaVigencia = cert.venceEn
       ? 'Válido hasta el ' + fechaLarga(cert.venceEn)
@@ -1441,7 +1517,13 @@ window.addEventListener('error', function (e) {
   var L = window.Logica;
 
   function D() { return Almacen.datos; }
-  function guardar() { Almacen.guardar(); }
+  function guardar() {
+    if (!Almacen.guardar()) {
+      toast('No se pudieron guardar los cambios: el almacenamiento del navegador está lleno. Exporta un respaldo y libera espacio.', true);
+      return false;
+    }
+    return true;
+  }
 
   // Estado de navegación (no persistente, salvo lo que se copia a Almacen.ui).
   var estado = {
@@ -1616,16 +1698,30 @@ window.addEventListener('error', function (e) {
     return cert;
   }
 
+  // Recorre todas las inscripciones y cierra las que quedaron completas por un
+  // cambio en el curso (p. ej. el admin quitó la evaluación o el último módulo).
+  function reconciliarInscripciones() {
+    var emitidos = 0;
+    D().inscripciones.forEach(function (insc) {
+      if (completarSiCorresponde(insc, true)) emitidos++;
+    });
+    if (emitidos) guardar();
+    return emitidos;
+  }
+
   // Si la inscripción quedó completa, registra fecha, vencimiento y certificado.
-  function completarSiCorresponde(insc) {
+  function completarSiCorresponde(insc, sinGuardar) {
     var c = curso(insc.cursoId);
     var p = persona(insc.personaId);
     if (!c || !p || insc.completadoEn) return null;
+    // Solo se cierra si la persona hizo algo: un curso recién asignado con cero
+    // módulos y sin evaluación no debe autocompletarse.
+    if (!insc.modulosCompletados.length && !insc.intentos.length) return null;
     if (!L.cursoCompletado(c, insc)) return null;
     insc.completadoEn = L.hoyISO();
     insc.venceEn = L.calcularVencimiento(insc.completadoEn, c.vigenciaMeses);
     var cert = emitirCertificado(insc, c, p);
-    guardar();
+    if (!sinGuardar) guardar();
     return cert;
   }
 
@@ -1645,6 +1741,8 @@ window.addEventListener('error', function (e) {
   }
 
   acciones.salirModo = function () {
+    if (estado.examen && !estado.examen.resultado &&
+      !confirmar('Tienes una evaluación en curso. ¿Salir? Las respuestas se perderán.')) return;
     estado.modo = 'inicio';
     estado.examen = null;
     estado.cursoAbiertoId = null;
@@ -2030,6 +2128,7 @@ window.addEventListener('error', function (e) {
     c.horas = Number(form.horas.value) || 0;
     c.vigenciaMeses = Math.max(0, Math.round(Number(form.vigenciaMeses.value) || 0));
     guardar();
+    reconciliarInscripciones();
     toast('Curso guardado.');
     render();
   };
@@ -2053,6 +2152,8 @@ window.addEventListener('error', function (e) {
     if (!c) return;
     var inscs = D().inscripciones.filter(function (i) { return i.cursoId === id; }).length;
     if (!confirmar('¿Eliminar el curso «' + c.titulo + '»?' + (inscs ? ' Se borrarán ' + inscs + ' inscripciones (los certificados emitidos se conservan).' : ''))) return;
+    (c.modulos || []).forEach(function (m) { olvidarArchivo(m.archivoId); });
+    (c.materialIds || []).forEach(olvidarArchivo);
     D().cursos = D().cursos.filter(function (x) { return x.id !== id; });
     D().inscripciones = D().inscripciones.filter(function (i) { return i.cursoId !== id; });
     D().programas.forEach(function (pr) {
@@ -2063,6 +2164,13 @@ window.addEventListener('error', function (e) {
     toast('Curso eliminado.');
     render();
   };
+
+  // Borra el blob de IndexedDB y su ficha en los datos, para no dejar huérfanos.
+  function olvidarArchivo(id) {
+    if (!id) return;
+    D().archivos = D().archivos.filter(function (a) { return a.id !== id; });
+    Almacen.eliminarArchivo(id);
+  }
 
   /* ---------- módulos ---------- */
 
@@ -2127,28 +2235,38 @@ window.addEventListener('error', function (e) {
   formularios.guardarModulo = function (form) {
     var c = curso(form.getAttribute('data-curso'));
     if (!c) return;
+    var tipo = form.tipo.value;
+    var videoUrl = form.videoUrl.value.trim();
+    var enlaceUrl = form.enlaceUrl.value.trim();
+    var archivoVideo = form.videoArchivo.files[0];
+    var archivoAdjunto = form.archivoAdjunto.files[0];
+    var subir = (tipo === 'video' && archivoVideo) || (tipo === 'archivo' && archivoAdjunto) || null;
+
+    // Validar antes de tocar los datos: si algo falla no queda un módulo a medias.
+    if (subir && subir.size > 250 * 1048576) { toast('El archivo supera los 250 MB.', true); return; }
+    if (tipo === 'enlace' && !/^https?:\/\//i.test(enlaceUrl)) {
+      toast('El enlace debe comenzar con http:// o https://', true); return;
+    }
+    if (tipo === 'video' && videoUrl && !L.analizarVideoUrl(videoUrl)) {
+      toast('El enlace del video no es válido.', true); return;
+    }
+
     var id = form.getAttribute('data-id');
     var m = id ? c.modulos.find(function (x) { return x.id === id; }) : null;
-    if (!m) {
-      m = { id: L.crearId('mod') };
-      c.modulos.push(m);
-    }
+    var esNuevo = !m;
+    if (!m) m = { id: L.crearId('mod') };
+
+    var archivoAnterior = m.archivoId || null;
     m.titulo = form.titulo.value.trim() || 'Módulo';
-    m.tipo = form.tipo.value;
+    m.tipo = tipo;
     m.duracionMin = Number(form.duracionMin.value) || 0;
     m.indicaciones = form.indicaciones.value.trim();
     m.contenido = form.contenido.value;
-    m.videoUrl = form.videoUrl.value.trim();
-    m.enlaceUrl = form.enlaceUrl.value.trim();
+    m.videoUrl = videoUrl;
+    m.enlaceUrl = enlaceUrl;
 
     var promesa = Promise.resolve();
-    var archivoVideo = form.videoArchivo.files[0];
-    var archivoAdjunto = form.archivoAdjunto.files[0];
-    var subir = null;
-    if (m.tipo === 'video' && archivoVideo) subir = archivoVideo;
-    if (m.tipo === 'archivo' && archivoAdjunto) subir = archivoAdjunto;
     if (subir) {
-      if (subir.size > 250 * 1048576) { toast('El archivo supera los 250 MB.', true); return; }
       var ficha = {
         id: L.crearId('arc'), nombre: subir.name, tipo: subir.type || 'application/octet-stream',
         tamano: subir.size, creadoEn: L.hoyISO()
@@ -2156,10 +2274,21 @@ window.addEventListener('error', function (e) {
       promesa = Almacen.registrarArchivo(ficha, subir).then(function () {
         m.archivoId = ficha.id;
         if (m.tipo === 'video') m.videoUrl = '';
+        if (archivoAnterior) olvidarArchivo(archivoAnterior);
       });
+    } else if (m.tipo === 'video' && videoUrl && archivoAnterior) {
+      // Se cambió el video subido por un enlace: el archivo ya no se usa.
+      m.archivoId = null;
+      olvidarArchivo(archivoAnterior);
+    } else if (m.tipo !== 'video' && m.tipo !== 'archivo' && archivoAnterior) {
+      m.archivoId = null;
+      olvidarArchivo(archivoAnterior);
     }
+
     promesa.then(function () {
+      if (esNuevo) c.modulos.push(m);
       guardar();
+      reconciliarInscripciones();
       cerrarModal();
       toast('Módulo guardado.');
       render();
@@ -2187,9 +2316,10 @@ window.addEventListener('error', function (e) {
     var id = el.getAttribute('data-id');
     var m = c.modulos.find(function (x) { return x.id === id; });
     if (!m || !confirmar('¿Eliminar el módulo «' + m.titulo + '»?')) return;
-    if (m.archivoId) Almacen.eliminarArchivo(m.archivoId);
+    olvidarArchivo(m.archivoId);
     c.modulos = c.modulos.filter(function (x) { return x.id !== id; });
     guardar();
+    reconciliarInscripciones();
     render();
   };
 
@@ -2237,6 +2367,7 @@ window.addEventListener('error', function (e) {
     if (!c) return;
     c.evaluacion.activa = el.checked;
     guardar();
+    reconciliarInscripciones();
     render();
   };
 
@@ -2369,6 +2500,7 @@ window.addEventListener('error', function (e) {
     var id = el.getAttribute('data-id');
     c.evaluacion.preguntas = c.evaluacion.preguntas.filter(function (p) { return p.id !== id; });
     guardar();
+    reconciliarInscripciones();
     render();
   };
 
@@ -2437,7 +2569,7 @@ window.addEventListener('error', function (e) {
       a.href = url; a.download = ficha ? ficha.nombre : 'archivo';
       document.body.appendChild(a); a.click(); a.remove();
       setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
-    });
+    }).catch(function () { toast('No se pudo leer el archivo desde este dispositivo.', true); });
   };
 
   acciones.quitarMaterial = function (el) {
@@ -2445,8 +2577,7 @@ window.addEventListener('error', function (e) {
     if (!c || !confirmar('¿Quitar este material del curso?')) return;
     var id = el.getAttribute('data-id');
     c.materialIds = (c.materialIds || []).filter(function (x) { return x !== id; });
-    D().archivos = D().archivos.filter(function (a) { return a.id !== id; });
-    Almacen.eliminarArchivo(id);
+    olvidarArchivo(id);
     guardar();
     render();
   };
@@ -2454,7 +2585,12 @@ window.addEventListener('error', function (e) {
   /* ---------- inscripciones ---------- */
 
   function inscribir(personaId, cursoId, programaId) {
-    if (inscripcionDe(personaId, cursoId)) return false;
+    var existente = inscripcionDe(personaId, cursoId);
+    if (existente) {
+      // Ya estaba inscrita: si venía suelta, queda vinculada al programa.
+      if (programaId && !existente.programaId) existente.programaId = programaId;
+      return false;
+    }
     D().inscripciones.push({
       id: L.crearId('ins'), personaId: personaId, cursoId: cursoId,
       programaId: programaId || null, modulosCompletados: [], intentos: [],
@@ -2499,6 +2635,7 @@ window.addEventListener('error', function (e) {
     if (!confirmar('¿Quitar la inscripción de ' + (p ? p.nombre : 'esta persona') + '? Su avance en este curso se perderá.')) return;
     D().inscripciones = D().inscripciones.filter(function (i) { return i.id !== insc.id; });
     guardar();
+    cerrarModal();
     render();
   };
 
@@ -2579,7 +2716,14 @@ window.addEventListener('error', function (e) {
     pr.descripcion = form.descripcion.value.trim();
     pr.obligatorio = form.obligatorio.checked;
     pr.cursoIds = Array.prototype.map.call(form.querySelectorAll('input[name="c"]:checked'), function (x) { return x.value; });
-    pr.personaIds = Array.prototype.map.call(form.querySelectorAll('input[name="p"]:checked'), function (x) { return x.value; });
+    var marcadas = Array.prototype.map.call(form.querySelectorAll('input[name="p"]:checked'), function (x) { return x.value; });
+    // El formulario solo lista personas activas: se conservan las inactivas
+    // que ya estaban en el programa.
+    var inactivasPrevias = (pr.personaIds || []).filter(function (id) {
+      var per = persona(id);
+      return per && per.activo === false;
+    });
+    pr.personaIds = marcadas.concat(inactivasPrevias.filter(function (id) { return marcadas.indexOf(id) === -1; }));
     var nuevas = 0;
     pr.personaIds.forEach(function (pid) {
       pr.cursoIds.forEach(function (cid) {
@@ -2607,6 +2751,9 @@ window.addEventListener('error', function (e) {
   function filasFiltradas() {
     var filas = L.filasSeguimiento(D());
     var f = estado.filtros;
+    // Un filtro que apunta a algo eliminado se descarta en vez de ocultarlo todo.
+    if (f.curso && !curso(f.curso)) f.curso = '';
+    if (f.categoria && !categoria(f.categoria)) f.categoria = '';
     return filas.filter(function (fila) {
       if (f.curso && fila.cursoId !== f.curso) return false;
       if (f.categoria && fila.categoriaId !== f.categoria) return false;
@@ -2913,7 +3060,7 @@ window.addEventListener('error', function (e) {
 
     html += '</div>'; // fin grilla
 
-    if (ocupado || estado.ia.salida) {
+    if ((ocupado && estado.ia.tipoSalida) || estado.ia.salida) {
       html += '<div class="tarjeta"><div class="fila-botones" style="justify-content:space-between">' +
         '<h3 style="margin:0">' + (ocupado ? '<span class="girando"></span> Generando…' : 'Resultado') + '</h3>' +
         (ocupado
@@ -3021,10 +3168,7 @@ window.addEventListener('error', function (e) {
     var id = el.getAttribute('data-id');
     var f = (D().iaFuentes || []).find(function (x) { return x.id === id; });
     if (!f) return;
-    if (f.archivoId) {
-      Almacen.eliminarArchivo(f.archivoId);
-      D().archivos = D().archivos.filter(function (a) { return a.id !== f.archivoId; });
-    }
+    olvidarArchivo(f.archivoId);
     D().iaFuentes = D().iaFuentes.filter(function (x) { return x.id !== id; });
     guardar();
     render();
@@ -3033,17 +3177,23 @@ window.addEventListener('error', function (e) {
   // Prepara las fuentes para la API: los PDF se leen de IndexedDB a base64.
   function prepararFuentes() {
     var fuentes = D().iaFuentes || [];
+    var faltantes = [];
     return Promise.all(fuentes.map(function (f) {
       if (f.tipo === 'pdf' && f.archivoId) {
         return Almacen.obtenerArchivo(f.archivoId).then(function (blob) {
-          if (!blob) return null;
+          if (!blob) { faltantes.push(f.nombre); return null; }
           return leerArchivo(blob).then(function (dataUrl) {
             return { tipo: 'pdf', nombre: f.nombre, base64: String(dataUrl).split(',')[1] || '' };
           });
         });
       }
       return Promise.resolve({ tipo: 'texto', nombre: f.nombre, texto: f.texto });
-    })).then(function (lista) { return lista.filter(Boolean); });
+    })).then(function (lista) {
+      if (faltantes.length) {
+        toast('No están en este dispositivo y se omitieron: ' + faltantes.join(', '), true);
+      }
+      return lista.filter(Boolean);
+    });
   }
 
   function iniciarTrabajoIA(tipoSalida) {
@@ -3122,11 +3272,15 @@ window.addEventListener('error', function (e) {
         p.correctas.every(function (i) { return i >= 0 && i < p.opciones.length; });
     }).map(function (p) {
       var tipo = ['unica', 'multiple', 'vf'].indexOf(p.tipo) !== -1 ? p.tipo : 'unica';
+      var opciones = p.opciones.map(String);
       var correctas = p.correctas.map(Number);
+      // Una V/F con distinto número de opciones pasa a ser de alternativa única,
+      // que es lo que realmente es (así queda editable y válida).
+      if (tipo === 'vf' && opciones.length !== 2) tipo = 'unica';
       if ((tipo === 'unica' || tipo === 'vf') && correctas.length > 1) correctas = [correctas[0]];
       return {
         id: L.crearId('preg'), tipo: tipo, texto: String(p.texto),
-        opciones: p.opciones.map(String), correctas: correctas,
+        opciones: opciones, correctas: correctas,
         explicacion: String(p.explicacion || '')
       };
     });
@@ -3290,6 +3444,7 @@ window.addEventListener('error', function (e) {
     estado.ia.chat.push({ rol: 'usuario', texto: pregunta });
     estado.ia.chat.push({ rol: 'asistente', texto: '…' });
     estado.ia.ocupado = true;
+    estado.ia.tipoSalida = null;
     estado.ia.controlador = new AbortController();
     render();
     var indiceRespuesta = estado.ia.chat.length - 1;
@@ -3313,7 +3468,9 @@ window.addEventListener('error', function (e) {
       terminarTrabajoIA();
       render();
     }).catch(function (e) {
-      estado.ia.chat.splice(indiceRespuesta, 1);
+      // Se quitan la respuesta vacía y la pregunta, para no dejar dos turnos
+      // «user» seguidos en el historial que se envía a la API.
+      estado.ia.chat.splice(indiceRespuesta - 1, 2);
       terminarTrabajoIA();
       toast(e.message || 'Error en la conversación.', true);
       render();
@@ -3399,6 +3556,7 @@ window.addEventListener('error', function (e) {
     if (!archivo) return;
     if (archivo.size > 512 * 1024) { toast('Usa un logo de menos de 500 KB.', true); return; }
     leerArchivo(archivo).then(function (dataUrl) {
+      if (!/^data:image\//i.test(dataUrl)) { toast('El archivo no es una imagen válida.', true); return; }
       D().config.logo = dataUrl;
       guardar();
       toast('Logo actualizado.');
@@ -3503,11 +3661,13 @@ window.addEventListener('error', function (e) {
   acciones.restablecerTodo = function () {
     if (!confirmar('Esto BORRA todos los datos de la aplicación en este dispositivo (personas, cursos, inscripciones y certificados). ¿Continuar?')) return;
     if (!confirmar('Última confirmación: ¿borrar todo definitivamente?')) return;
-    Almacen.restablecer();
-    aplicarColores();
-    estado.vistaAdmin = 'panel';
-    toast('Aplicación restablecida.');
-    render();
+    Promise.resolve(Almacen.restablecer()).then(function () {
+      aplicarColores();
+      estado.vistaAdmin = 'panel';
+      estado.cursoEditId = null;
+      toast('Aplicación restablecida.');
+      render();
+    });
   };
 
   /* ---------- colaborador ---------- */
@@ -3569,9 +3729,14 @@ window.addEventListener('error', function (e) {
   };
 
   acciones.cambiarPersona = function () {
+    if (estado.examen && !estado.examen.resultado &&
+      !confirmar('Tienes una evaluación en curso. ¿Salir? Las respuestas se perderán.')) return;
     estado.colabPersonaId = null;
     estado.cursoAbiertoId = null;
     estado.examen = null;
+    estado.busquedaPersona = '';
+    Almacen.ui.colabPersonaId = null;
+    Almacen.guardarUI();
     render();
   };
 
@@ -3791,11 +3956,25 @@ window.addEventListener('error', function (e) {
     render();
   };
 
+  // Tipos que el navegador puede mostrar sin ejecutar código en el origen de
+  // la app. Cualquier otro (HTML, SVG, etc.) se descarga en lugar de abrirse.
+  var TIPOS_VISTA_SEGURA = /^(application\/pdf|image\/(png|jpeg|gif|webp|bmp)|text\/plain)$/i;
+
   acciones.abrirArchivoModulo = function (el) {
-    Almacen.obtenerArchivo(el.getAttribute('data-id')).then(function (blob) {
+    var id = el.getAttribute('data-id');
+    var ficha = Almacen.fichaArchivo(id);
+    if (!ficha || !TIPOS_VISTA_SEGURA.test(ficha.tipo || '')) {
+      acciones.descargarMaterial(el);
+      return;
+    }
+    Almacen.obtenerArchivo(id).then(function (blob) {
       if (!blob) { toast('El archivo no está en este dispositivo.', true); return; }
-      window.open(urlTemporal(blob), '_blank');
-    });
+      // URL propia: no entra en la lista temporal para que el siguiente render
+      // no la revoque mientras la pestaña sigue abierta.
+      var url = URL.createObjectURL(blob);
+      window.open(url, '_blank', 'noopener');
+      setTimeout(function () { URL.revokeObjectURL(url); }, 60000);
+    }).catch(function () { toast('No se pudo abrir el archivo.', true); });
   };
 
   acciones.completarModulo = function (el) {
@@ -4090,6 +4269,7 @@ window.addEventListener('error', function (e) {
       }
     }
 
+    reconciliarInscripciones();
     render();
   }
 
