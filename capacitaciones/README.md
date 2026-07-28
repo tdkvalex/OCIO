@@ -25,9 +25,11 @@ y videos).
   verdadero/falso, con nota mínima configurable, límite de intentos, orden al
   azar, revisión de respuestas y explicaciones.
 - **Control y seguimiento del personal**: panel con indicadores de
-  cumplimiento, matriz persona × curso con filtros (curso, categoría, estado,
-  área), avance y notas, exportación a **CSV**, reinicio de intentos y
-  **recertificación** cuando una capacitación vence.
+  cumplimiento (general y **por categoría**), matriz persona × curso con
+  filtros (curso, categoría, estado, área), avance y notas, exportación a
+  **CSV**, **ficha individual** con el historial de cada persona (también
+  exportable), reinicio de intentos y **recertificación** cuando una
+  capacitación vence.
 - **Vigencias**: cada curso puede tener vigencia en meses; al vencer, el
   seguimiento lo marca y permite reinscribir.
 - **Certificados**: se generan automáticamente al completar un curso, con
@@ -60,6 +62,10 @@ y videos).
 En iPhone/Android puedes usar «Añadir a pantalla de inicio» para tenerla como app.
 
 ### Primeros pasos (administrador)
+
+> ¿Primera vez? Usa **«Cargar datos de ejemplo»** (en el panel o en Ajustes →
+> Respaldo) para explorar la aplicación con personas, cursos, un programa y
+> certificados de muestra; cuando termines, «Restablecer todo» la deja limpia.
 
 1. **Ajustes** → personaliza nombre, logo, colores y categorías.
 2. **Personas** → agrega al personal (o importa una lista pegando

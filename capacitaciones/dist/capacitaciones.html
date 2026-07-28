@@ -1770,6 +1770,7 @@ window.addEventListener('error', function (e) {
 
   acciones.irAdmin = function () {
     estado.modo = 'admin';
+    estado.busquedaPersona = '';
     Almacen.ui.modo = 'admin';
     Almacen.guardarUI();
     render();
@@ -1777,6 +1778,7 @@ window.addEventListener('error', function (e) {
 
   acciones.irColab = function () {
     estado.modo = 'colab';
+    estado.busquedaPersona = '';
     Almacen.ui.modo = 'colab';
     Almacen.guardarUI();
     render();
@@ -1857,10 +1859,36 @@ window.addEventListener('error', function (e) {
         }).join('') + '</div>';
     }
 
+    // cumplimiento por categoría
+    var filasActivas = L.filasSeguimiento(D()).filter(function (f) { return f.activo; });
+    if (filasActivas.length) {
+      var porCategoria = {};
+      filasActivas.forEach(function (f) {
+        var clave = f.categoriaId || 'sin';
+        if (!porCategoria[clave]) porCategoria[clave] = { total: 0, completadas: 0 };
+        porCategoria[clave].total++;
+        if (f.estado === 'completado') porCategoria[clave].completadas++;
+      });
+      html += '<div class="tarjeta"><h3>🏷️ Cumplimiento por categoría</h3>' +
+        Object.keys(porCategoria).map(function (clave) {
+          var cat = categoria(clave);
+          var g = porCategoria[clave];
+          var pct = Math.round((g.completadas / g.total) * 100);
+          return '<div class="fila-lista">' +
+            '<div style="width:12px;height:12px;border-radius:4px;flex:0 0 auto;background:' + atr(cat && cat.color || '#666') + '"></div>' +
+            '<div class="principal"><div class="nombre">' + esc(cat ? cat.nombre : 'Sin categoría') + '</div>' +
+            '<div class="detalle">' + g.completadas + ' de ' + g.total + ' completadas</div></div>' +
+            '<div style="flex:0 0 90px">' + barraAvance(pct) + '</div>' +
+            '<strong style="width:44px;text-align:right">' + pct + '%</strong></div>';
+        }).join('') + '</div>';
+    }
+
     if (!D().personas.length || !D().cursos.length) {
       html += '<div class="aviso info">Para comenzar: crea <strong>personas</strong> y <strong>cursos</strong>, ' +
         'asígnalos (directamente o con un <strong>programa</strong>) y sigue el avance desde esta pantalla. ' +
-        'El <strong>Asistente IA</strong> puede crear cursos completos desde tus documentos.</div>';
+        'El <strong>Asistente IA</strong> puede crear cursos completos desde tus documentos.' +
+        '<div style="margin-top:10px"><button class="boton chico" data-accion="cargarEjemplo">Cargar datos de ejemplo</button> ' +
+        '<span style="font-size:.78rem">para explorar la aplicación (luego puedes restablecer todo en Ajustes).</span></div></div>';
     }
     return html;
   }
@@ -1890,6 +1918,7 @@ window.addEventListener('error', function (e) {
           '<div class="detalle">' + esc(p.correo || 'sin correo') +
           (p.area ? ' · ' + esc(p.area) : '') + (p.cargo ? ' · ' + esc(p.cargo) : '') +
           ' · ' + inscs + ' capacitación' + (inscs === 1 ? '' : 'es') + '</div></div>' +
+          '<button class="boton chico secundario" data-accion="fichaPersona" data-id="' + atr(p.id) + '">Ficha</button>' +
           '<button class="boton chico secundario" data-accion="editarPersona" data-id="' + atr(p.id) + '">Editar</button>' +
           '</div>';
       }).join('');
@@ -1954,6 +1983,62 @@ window.addEventListener('error', function (e) {
     cerrarModal();
     toast('Persona eliminada.');
     render();
+  };
+
+  // Expediente de capacitación de una persona: estados, notas y certificados.
+  acciones.fichaPersona = function (el) {
+    var p = persona(el.getAttribute('data-id'));
+    if (!p) return;
+    var filas = L.filasSeguimiento(D()).filter(function (f) { return f.personaId === p.id; });
+    var conteo = { completado: 0, en_curso: 0, pendiente: 0, reprobado: 0, vencido: 0 };
+    filas.forEach(function (f) { conteo[f.estado] = (conteo[f.estado] || 0) + 1; });
+    var certs = D().certificados.filter(function (c) { return c.personaId === p.id; });
+
+    var html = '<h3>📋 Ficha de ' + esc(p.nombre) + '</h3>' +
+      '<p style="color:var(--texto2);font-size:.84rem">' +
+      esc([p.cargo, p.area, p.correo].filter(Boolean).join(' · ') || 'Sin datos adicionales') +
+      (p.activo === false ? ' · <span class="chip pendiente">Inactiva</span>' : '') + '</p>' +
+      '<div class="fila-botones" style="margin-bottom:12px">' +
+      '<span class="chip completado">' + conteo.completado + ' completadas</span>' +
+      '<span class="chip en_curso">' + (conteo.en_curso + conteo.pendiente) + ' en curso o pendientes</span>' +
+      (conteo.vencido ? '<span class="chip vencido">' + conteo.vencido + ' vencidas</span>' : '') +
+      (conteo.reprobado ? '<span class="chip reprobado">' + conteo.reprobado + ' reprobadas</span>' : '') +
+      '<span class="chip categoria">🏅 ' + certs.length + ' certificado' + (certs.length === 1 ? '' : 's') + '</span></div>';
+
+    if (!filas.length) {
+      html += '<div class="vacio">Sin capacitaciones asignadas.</div>';
+    } else {
+      html += filas.map(function (f) {
+        var insc = inscripcion(f.inscripcionId);
+        return '<div class="fila-lista"><div class="principal"><div class="nombre">' + esc(f.curso) + '</div>' +
+          '<div class="detalle">' + esc(f.categoria) +
+          (f.puntaje !== null ? ' · nota ' + f.puntaje + '%' : '') +
+          (f.completadoEn ? ' · completado el ' + L.fechaCorta(f.completadoEn) : '') +
+          (f.venceEn ? ' · vence el ' + L.fechaCorta(f.venceEn) : '') + '</div></div>' +
+          chipEstado(f.estado) +
+          (insc && insc.certificadoId
+            ? '<button class="boton chico secundario" data-accion="verCertificado" data-id="' + atr(insc.certificadoId) + '">🏅</button>'
+            : '') +
+          '</div>';
+      }).join('');
+      html += '<div class="fila-botones" style="margin-top:12px">' +
+        '<button class="boton chico secundario" data-accion="exportarCSVPersona" data-id="' + atr(p.id) + '">⬇ Exportar historial (CSV)</button></div>';
+    }
+    abrirModal(html);
+  };
+
+  acciones.exportarCSVPersona = function (el) {
+    var p = persona(el.getAttribute('data-id'));
+    if (!p) return;
+    var columnas = [
+      { clave: 'curso', titulo: 'Curso' }, { clave: 'categoria', titulo: 'Categoría' },
+      { clave: 'programa', titulo: 'Programa' }, { clave: 'estadoTexto', titulo: 'Estado' },
+      { clave: 'avancePct', titulo: 'Avance %' }, { clave: 'puntaje', titulo: 'Mejor nota' },
+      { clave: 'completadoEn', titulo: 'Completado' }, { clave: 'venceEn', titulo: 'Vence' }
+    ];
+    var filas = L.filasSeguimiento(D()).filter(function (f) { return f.personaId === p.id; });
+    descargarTexto('historial-' + L.normalizar(p.nombre).replace(/[^a-z0-9]+/g, '-') + '-' + L.hoyISO() + '.csv',
+      L.aCSV(columnas, filas), 'text/csv;charset=utf-8');
   };
 
   acciones.importarPersonas = function () {
@@ -3532,6 +3617,7 @@ window.addEventListener('error', function (e) {
       '<button class="boton" data-accion="exportarDatos">⬇ Exportar datos</button>' +
       '<label class="boton secundario" style="cursor:pointer">⬆ Importar datos' +
       '<input type="file" accept="application/json,.json" style="display:none" data-accion-cambio="importarDatos"></label>' +
+      '<button class="boton secundario" data-accion="cargarEjemplo">Cargar datos de ejemplo</button>' +
       '<button class="boton peligro" data-accion="restablecerTodo">Restablecer todo</button></div></div>';
 
     html += '</div>';
@@ -3668,6 +3754,160 @@ window.addEventListener('error', function (e) {
       toast('Aplicación restablecida.');
       render();
     });
+  };
+
+  /* ---------- datos de ejemplo ---------- */
+
+  // Crea un juego de datos realista para explorar la aplicación: personas,
+  // cursos de las tres categorías, un programa e inscripciones en todos los
+  // estados (pendiente, en curso, completada, por vencer, vencida y reprobada).
+  function cargarDatosEjemplo() {
+    var d = D();
+    var hoy = L.hoyISO();
+
+    function nuevaPersona(nombre, correo, area, cargo) {
+      var per = { id: L.crearId('per'), nombre: nombre, correo: correo, area: area, cargo: cargo, activo: true, creadoEn: hoy };
+      d.personas.push(per);
+      return per;
+    }
+    var ana = nuevaPersona('Ana Soto Reyes', 'ana.soto@ejemplo.cl', 'Operaciones', 'Supervisora');
+    var luis = nuevaPersona('Luis Rojas Peña', 'luis.rojas@ejemplo.cl', 'Ventas', 'Ejecutivo');
+    var carla = nuevaPersona('Carla Núñez Silva', 'carla.nunez@ejemplo.cl', 'Administración', 'Analista');
+    var pedro = nuevaPersona('Pedro Díaz Fuentes', 'pedro.diaz@ejemplo.cl', 'Operaciones', 'Operario');
+
+    function pregunta(tipo, texto, opciones, correctas, explicacion) {
+      return { id: L.crearId('preg'), tipo: tipo, texto: texto, opciones: opciones, correctas: correctas, explicacion: explicacion || '' };
+    }
+    function modulo(titulo, contenido, duracionMin, extra) {
+      return Object.assign({
+        id: L.crearId('mod'), titulo: titulo, tipo: 'texto', contenido: contenido || '',
+        duracionMin: duracionMin || 0, videoUrl: '', enlaceUrl: '', indicaciones: ''
+      }, extra || {});
+    }
+
+    var induccion = {
+      id: L.crearId('cur'), titulo: 'Inducción a la organización',
+      descripcion: 'Bienvenida, valores, estructura interna y normas básicas de convivencia para toda persona que se incorpora.',
+      categoriaId: 'cat_basicos', horas: 2, vigenciaMeses: 0, publicado: true, creadoEn: hoy,
+      modulos: [
+        modulo('Quiénes somos', '## Nuestra historia\nSomos una organización dedicada a entregar servicios de calidad.\n\n## Misión\nEntregar valor a nuestros clientes cuidando a nuestro equipo.\n\n**Valores**: respeto, seguridad y mejora continua.\n\n- Respeto entre colegas y con los clientes\n- La seguridad es primero, siempre\n- Buscamos mejorar cada proceso', 20),
+        modulo('Normas internas esenciales', '## Jornada y asistencia\n- Registra tu ingreso y salida cada día\n- Los atrasos se justifican con tu jefatura directa\n\n## Canales de comunicación\n- Consultas administrativas: correo de RR. HH.\n- Emergencias: anexo 100\n\n## Confidencialidad\nLa información interna **no se comparte** fuera de la organización.', 25)
+      ],
+      materialIds: [],
+      evaluacion: {
+        activa: true, notaAprobacion: 70, intentosMax: 3, barajar: true,
+        preguntas: [
+          pregunta('unica', '¿Cuál es el primer valor de la organización frente a cualquier tarea?', ['La rapidez', 'La seguridad', 'El costo'], [1], 'La seguridad es siempre lo primero.'),
+          pregunta('vf', 'La información interna puede compartirse fuera de la organización si parece inofensiva.', ['Verdadero', 'Falso'], [1], 'La confidencialidad aplica a toda la información interna.'),
+          pregunta('multiple', '¿Cuáles son valores declarados de la organización?', ['Respeto', 'Seguridad', 'Competencia interna', 'Mejora continua'], [0, 1, 3], 'Los valores son respeto, seguridad y mejora continua.')
+        ]
+      }
+    };
+
+    var riesgos = {
+      id: L.crearId('cur'), titulo: 'Prevención de riesgos laborales',
+      descripcion: 'Obligaciones legales, identificación de peligros, uso de elementos de protección personal y qué hacer ante un accidente.',
+      categoriaId: 'cat_legal', horas: 4, vigenciaMeses: 12, publicado: true, creadoEn: hoy,
+      modulos: [
+        modulo('Derecho a saber y obligaciones', '## Derecho a saber\nToda persona debe ser informada de los riesgos de su puesto, las medidas preventivas y los métodos de trabajo correctos.\n\n## Obligaciones del trabajador\n- Usar los elementos de protección personal (EPP) entregados\n- Informar de inmediato condiciones inseguras\n- Respetar señaléticas y procedimientos\n\n## Ante un accidente\n1. Avisa a tu jefatura\n2. Acude a evaluación médica\n3. Colabora en la investigación para evitar repeticiones', 45),
+        modulo('Video: uso correcto de EPP', 'Observa el video y fíjate en el orden correcto de colocación de los elementos de protección.', 10, { tipo: 'video', videoUrl: 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4' }),
+        modulo('Material de referencia externo', 'Lectura complementaria sobre prevención de riesgos laborales.', 15, { tipo: 'enlace', enlaceUrl: 'https://es.wikipedia.org/wiki/Prevenci%C3%B3n_de_riesgos_laborales' })
+      ],
+      materialIds: [],
+      evaluacion: {
+        activa: true, notaAprobacion: 75, intentosMax: 3, barajar: true,
+        preguntas: [
+          pregunta('unica', 'Si detectas una condición insegura, ¿qué debes hacer primero?', ['Resolverla por mi cuenta', 'Informarla de inmediato', 'Esperar a la próxima reunión'], [1], 'Informar de inmediato permite controlar el riesgo a tiempo.'),
+          pregunta('vf', 'El uso de los EPP entregados es voluntario.', ['Verdadero', 'Falso'], [1], 'Usar los EPP es una obligación del trabajador.'),
+          pregunta('unica', '¿Qué corresponde hacer después de un accidente, tras avisar a la jefatura?', ['Volver a trabajar de inmediato', 'Acudir a evaluación médica', 'Esperar en el puesto'], [1]),
+          pregunta('multiple', '¿Cuáles son obligaciones del trabajador?', ['Usar los EPP', 'Informar condiciones inseguras', 'Comprar sus propios EPP', 'Respetar las señaléticas'], [0, 1, 3])
+        ]
+      }
+    };
+
+    var clientes = {
+      id: L.crearId('cur'), titulo: 'Atención de clientes',
+      descripcion: 'Técnicas de comunicación, manejo de reclamos y estándares de servicio.',
+      categoriaId: 'cat_comp', horas: 3, vigenciaMeses: 0, publicado: true, creadoEn: hoy,
+      modulos: [
+        modulo('Escucha activa', '## Qué es\nEscuchar para comprender, no solo para responder.\n\n- Deja terminar la idea antes de responder\n- Parafrasea: «entonces, lo que necesitas es…»\n- Toma nota de los compromisos', 30),
+        modulo('Manejo de reclamos', '## Pasos\n1. Agradece el reclamo: es una oportunidad de mejora\n2. Escucha sin interrumpir\n3. Ofrece una solución concreta y un plazo\n4. Haz seguimiento hasta cerrar el caso', 35)
+      ],
+      materialIds: [],
+      evaluacion: { activa: false, notaAprobacion: 70, intentosMax: 3, barajar: true, preguntas: [] }
+    };
+
+    d.cursos.push(induccion, riesgos, clientes);
+
+    var programa = {
+      id: L.crearId('prog'), nombre: 'Plan de inducción 2026',
+      descripcion: 'Cursos obligatorios para todo el personal: inducción y prevención de riesgos.',
+      obligatorio: true, creadoEn: hoy,
+      cursoIds: [induccion.id, riesgos.id],
+      personaIds: [ana.id, luis.id, carla.id, pedro.id]
+    };
+    d.programas.push(programa);
+    programa.personaIds.forEach(function (pid) {
+      programa.cursoIds.forEach(function (cid) { inscribir(pid, cid, programa.id); });
+    });
+    inscribir(carla.id, clientes.id, null);
+
+    function marcar(personaObj, cursoObj, cambios) {
+      var insc = inscripcionDe(personaObj.id, cursoObj.id);
+      if (insc) Object.assign(insc, cambios);
+      return insc;
+    }
+    function todosLosModulos(cursoObj) {
+      return cursoObj.modulos.map(function (m) { return m.id; });
+    }
+
+    // Ana: inducción completada hoy; prevención por vencer dentro de ~20 días.
+    var iAna1 = marcar(ana, induccion, {
+      modulosCompletados: todosLosModulos(induccion),
+      intentos: [{ fecha: hoy, puntaje: 100, aprobado: true }],
+      completadoEn: hoy, venceEn: null
+    });
+    emitirCertificado(iAna1, induccion, ana);
+    var venceAna = L.hoyISO(new Date(Date.now() + 20 * 86400000));
+    var iAna2 = marcar(ana, riesgos, {
+      modulosCompletados: todosLosModulos(riesgos),
+      intentos: [{ fecha: L.sumarMeses(venceAna, -12), puntaje: 100, aprobado: true }],
+      completadoEn: L.sumarMeses(venceAna, -12), venceEn: venceAna
+    });
+    emitirCertificado(iAna2, riesgos, ana);
+
+    // Luis: inducción en curso; prevención vencida hace un mes.
+    marcar(luis, induccion, { modulosCompletados: [induccion.modulos[0].id] });
+    var iLuis2 = marcar(luis, riesgos, {
+      modulosCompletados: todosLosModulos(riesgos),
+      intentos: [{ fecha: L.sumarMeses(hoy, -13), puntaje: 88, aprobado: true }],
+      completadoEn: L.sumarMeses(hoy, -13), venceEn: L.sumarMeses(hoy, -1)
+    });
+    emitirCertificado(iLuis2, riesgos, luis);
+
+    // Carla: inducción pendiente; atención de clientes en curso.
+    marcar(carla, clientes, { modulosCompletados: [clientes.modulos[0].id] });
+
+    // Pedro: prevención reprobada (agotó los 3 intentos).
+    marcar(pedro, riesgos, {
+      modulosCompletados: todosLosModulos(riesgos),
+      intentos: [
+        { fecha: hoy, puntaje: 25, aprobado: false },
+        { fecha: hoy, puntaje: 50, aprobado: false },
+        { fecha: hoy, puntaje: 50, aprobado: false }
+      ]
+    });
+
+    guardar();
+  }
+
+  acciones.cargarEjemplo = function () {
+    var hayDatos = D().personas.length || D().cursos.length;
+    if (hayDatos && !confirmar('Ya hay datos en la aplicación. Los datos de ejemplo se AÑADIRÁN a los existentes. ¿Continuar?')) return;
+    cargarDatosEjemplo();
+    estado.vistaAdmin = 'panel';
+    toast('Datos de ejemplo cargados: 4 personas, 3 cursos, 1 programa y certificados de muestra.');
+    render();
   };
 
   /* ---------- colaborador ---------- */

@@ -190,6 +190,38 @@ const malo = await pag.evaluate(() => {
 });
 ok(malo.includes('respaldo'), 'respaldo malformado rechazado');
 
+// --- datos de ejemplo + ficha de persona (contexto limpio)
+console.log('• Datos de ejemplo y ficha de persona');
+const ctx2 = await navegador.newContext();
+const pag2 = await ctx2.newPage();
+pag2.on('pageerror', e => errores.push('pageerror(ej): ' + e.message));
+await pag2.goto(BASE);
+await pag2.waitForSelector('.inicio');
+await pag2.click('[data-accion="irAdmin"]');
+await pag2.waitForSelector('.nav');
+await pag2.click('[data-accion="cargarEjemplo"]');
+await pag2.waitForTimeout(400);
+const resumen = await pag2.evaluate(() => {
+  const d = JSON.parse(localStorage.getItem('cap_datos_v1'));
+  return { personas: d.personas.length, cursos: d.cursos.length, programas: d.programas.length,
+    inscripciones: d.inscripciones.length, certificados: d.certificados.length };
+});
+ok(resumen.personas === 4 && resumen.cursos === 3 && resumen.programas === 1, 'ejemplo: 4 personas, 3 cursos, 1 programa');
+ok(resumen.inscripciones === 9 && resumen.certificados === 3, 'ejemplo: 9 inscripciones y 3 certificados');
+ok(await pag2.locator('text=Cumplimiento por categoría').count() > 0, 'panel muestra cumplimiento por categoría');
+ok(await pag2.locator('text=Vencen en los próximos 30 días').count() > 0 &&
+   await pag2.locator('.tarjeta:has-text("Vencen en los próximos") .fila-lista').count() === 1, 'una capacitación por vencer (Ana)');
+ok(await pag2.locator('.tarjeta:has-text("Capacitaciones vencidas") .fila-lista').count() === 1, 'una capacitación vencida (Luis)');
+
+await pag2.click('[data-accion="pestanaAdmin"][data-valor="personas"]');
+await pag2.waitForTimeout(200);
+await pag2.locator('[data-accion="fichaPersona"]').first().click();
+await pag2.waitForTimeout(300);
+ok(await pag2.locator('.modal h3:has-text("Ficha de")').count() > 0, 'ficha de persona se abre');
+ok(await pag2.locator('.modal .chip.completado').count() > 0, 'ficha muestra el resumen de estados');
+ok(await pag2.locator('.modal [data-accion="exportarCSVPersona"]').count() > 0, 'ficha permite exportar el historial');
+await ctx2.close();
+
 console.log('');
 if (errores.length) { console.log('ERRORES DE PÁGINA:'); errores.forEach(e => console.log('  ! ' + e)); }
 console.log(fallos ? `✗ ${fallos} comprobación(es) fallaron` : '✓ Prueba de humo completa sin fallos');
