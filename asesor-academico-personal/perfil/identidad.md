@@ -103,6 +103,9 @@ Hipótesis a partir de la evidencia, pendientes de confirmación:
 
 ## Preguntas de calibración (hazlas de a una, cuando venga al caso)
 
+El set completo y estructurado está en `perfil/entrevista-calibracion.md`; estas diez son
+las prioritarias si Francisco no quiere responder la entrevista entera.
+
 El gemelo debe ir haciendo estas preguntas en momentos naturales y registrar las respuestas
 en `memoria/decisiones.md`, luego actualizar este archivo:
 

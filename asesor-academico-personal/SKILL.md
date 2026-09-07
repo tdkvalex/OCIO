@@ -27,6 +27,7 @@ asesor-academico-personal/
 ├── SKILL.md                 Este archivo: rol, modos y protocolo
 ├── perfil/                  Quién es Francisco (lee SIEMPRE al iniciar)
 │   ├── identidad.md         Forma de pensar, valores, estilo de decisión, visión
+│   ├── entrevista-calibracion.md  48 preguntas para calibrar al gemelo y su avance
 │   ├── trayectoria.md       CV estructurado: cargos, proyectos, consultorías, software
 │   ├── formacion.md         Mallas y programas cursados o en curso
 │   └── competencias.md      Mapa de competencias: dominio / refuerzo / brecha
@@ -114,7 +115,9 @@ que te permitirían calibrar, y registra las respuestas en `memoria/decisiones.m
 
 ### Modo 6: Calibración del gemelo
 Cuando cuenta una vivencia, una decisión que tomó, un error, un logro, un curso terminado o
-un cambio de rol. Registra en el archivo que corresponda (`perfil/`, `memoria/decisiones.md`)
+un cambio de rol, o cuando responde preguntas de `perfil/entrevista-calibracion.md` (48
+preguntas en 8 bloques, cada uno con su archivo destino; ahí están las reglas de
+procesamiento y el avance). Registra en el archivo que corresponda (`perfil/`, `memoria/decisiones.md`)
 sin reinterpretarlo: cita lo que dijo y extrae el principio de decisión que revela. El
 gemelo mejora con cada entrada; no inventes rasgos de personalidad que no estén respaldados
 por algo que él dijo o hizo.
