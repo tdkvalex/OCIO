@@ -27,7 +27,11 @@ Cuatro cursos bimestrales. Ficha completa en
 3. Estrategias para la planificación y administración de proyectos (Alarcón).
 4. Técnicas de control y presupuesto en proyectos de construcción (de Solminihac).
 
-## 3. MBA en Gestión de Proyectos, USP/Esalq (inicio 10/2024, 18 meses + TCC, online)
+## 3. MBA en Gestión de Proyectos, USP/Esalq (concluido; online, 18 meses + TCC)
+
+Estado confirmado por Francisco el 2026-09-07: **MBA terminado**. Fecha de conclusión y tema
+del TCC **[pendiente]**. El brochure adjuntado corresponde a una cohorte con inicio en
+10/2024; sirve como mapa de contenidos cursados, para refuerzo.
 
 Tres módulos más el introductorio. Ficha completa en
 `biblioteca/fuentes/mba-gestion-proyectos-usp-esalq.md`.
@@ -36,8 +40,8 @@ Tres módulos más el introductorio. Ficha completa en
 - Gestión de Personas y Liderazgo.
 - Gestión Estratégica y de Negocios.
 - Gerenciamiento Técnico de Proyectos (predictivo, ágil, híbrido; PMO; portafolio).
-- Evaluación: prueba semanal de 10 preguntas de opción múltiple, promedio final ≥ 7,
-  asistencia ≥ 75 % por pruebas, TCC por videoconferencia.
+- Formato que cursó: prueba semanal de 10 preguntas de opción múltiple, promedio final ≥ 7,
+  TCC por videoconferencia.
 
 ## 4. Ingeniería Civil Industrial, Universidad San Sebastián (en curso)
 

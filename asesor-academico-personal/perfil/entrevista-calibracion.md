@@ -16,19 +16,23 @@ Reglas para el gemelo al recibir respuestas:
    código nuevo y avisarle.
 5. Nunca completar una respuesta que él no dio. Si falta, la pregunta sigue abierta.
 
-Avance: 0 de 48 contestadas.
+Avance: 7 de 52 contestadas (bloque A completo, A8-A11 nuevas).
 
 ---
 
 ## Bloque A · Objetivos y visión → `memoria/objetivos.md`, `perfil/identidad.md` (Visión)
 
-- [ ] A1. ¿Dónde quieres estar profesionalmente en 3 años y en 5 años? (cargo, empresa o tipo de empresa, alcance).
-- [ ] A2. ¿Qué te falta hoy para llegar ahí: un título, una certificación, una experiencia, una red, otra cosa?
-- [ ] A3. ¿Por qué elegiste la Ingeniería Civil Industrial además del MBA? ¿Qué esperas que te dé que el MBA no?
-- [ ] A4. ¿Qué certificación tienes en la mira primero (auditor líder IRCA, PMP, Green/Black Belt, otra) y para cuándo?
-- [ ] A5. ¿Tienes tema en mente para el TCC del MBA? Si no, ¿qué problema de tu trabajo te gustaría resolver con rigor académico?
-- [ ] A6. ¿Consultoría propia o academia están en tu horizonte, aunque sea lejano?
-- [ ] A7. Si tuvieras que elegir entre profundizar en HSEQ, en gestión de proyectos o en I+D+i, ¿cuál y por qué?
+- [x] (2026-09-07) A1. ¿Dónde quieres estar profesionalmente en 3 años y en 5 años? (cargo, empresa o tipo de empresa, alcance).
+- [x] (2026-09-07) A2. ¿Qué te falta hoy para llegar ahí: un título, una certificación, una experiencia, una red, otra cosa?
+- [x] (2026-09-07) A3. ¿Por qué elegiste la Ingeniería Civil Industrial además del MBA? ¿Qué esperas que te dé que el MBA no?
+- [x] (2026-09-07) A4. ¿Qué certificación tienes en la mira primero (auditor líder IRCA, PMP, Green/Black Belt, otra) y para cuándo?
+- [x] (2026-09-07) A5. ¿Tienes tema en mente para el TCC del MBA? Si no, ¿qué problema de tu trabajo te gustaría resolver con rigor académico?
+- [x] (2026-09-07) A6. ¿Consultoría propia o academia están en tu horizonte, aunque sea lejano?
+- [x] (2026-09-07) A7. Si tuvieras que elegir entre profundizar en HSEQ, en gestión de proyectos o en I+D+i, ¿cuál y por qué?
+- [ ] A8. (nueva) ¿Cuál fue el tema de tu TCC del MBA, cuándo lo concluiste y qué concluiste? ¿Lo has aplicado?
+- [ ] A9. (nueva) Dijiste que te falta oportunidad, no conocimiento. ¿Qué evidencia concreta de resultados gerenciales tienes hoy (casos con cifras, procesos implementados, ahorros, certificaciones logradas) y cuál te falta para que un gerente general te vea como gerente?
+- [ ] A10. (nueva) De las certificaciones que revisaste, ¿cuáles eran y qué te frenó en cada una (costo, tiempo, utilidad, requisitos)?
+- [ ] A11. (nueva) ¿Dónde ves más probable la gerencia: dentro de Besalco, en otra constructora o contratista, en un mandante minero, o en una consultora?
 
 ## Bloque B · Estudio, tiempo y forma de aprender → `metodologia/pedagogia.md`, `memoria/objetivos.md`
 

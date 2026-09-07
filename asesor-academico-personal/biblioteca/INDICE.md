@@ -11,7 +11,7 @@ técnico (conocimiento que Francisco ya tiene y que se erosiona) están en `nucl
 | 1 | CV Medina Francisco QAQC R1 | perfil/trayectoria.md | Perfil | Base del gemelo | Todos | 2026-09-07 |
 | 2 | Malla curricular Construcción Civil | fuentes/malla-construccion-civil.md | Malla | Cursado | Refuerzo de fundamentos | 2026-09-07 |
 | 3 | Diplomado en Gestión de la Construcción, PUC Clase Ejecutiva | fuentes/diplomado-gestion-construccion-uc.md | Programa | Cursado 2021-2022 | Refuerzo: contratos, calidad, planificación, costos | 2026-09-07 |
-| 4 | MBA en Gestión de Proyectos, USP/Esalq (contenido programático) | fuentes/mba-gestion-proyectos-usp-esalq.md | Programa | En curso desde 10/2024 | O1 MBA, O3 certificaciones | 2026-09-07 |
+| 4 | MBA en Gestión de Proyectos, USP/Esalq (contenido programático) | fuentes/mba-gestion-proyectos-usp-esalq.md | Programa | Concluido | O3 certificación, O7 gerencia, O4 refuerzo | 2026-09-07 |
 
 ## Núcleos de refuerzo técnico
 
@@ -31,7 +31,7 @@ técnico (conocimiento que Francisco ya tiene y que se erosiona) están en `nucl
 ## Pendientes de ingesta
 Material que Francisco mencionó o que se sabe que existe pero aún no se ha adjuntado:
 - Malla y avance de Ingeniería Civil Industrial (USS).
-- Avance real por módulo del MBA y fechas de pruebas.
+- Tema y fecha de conclusión del TCC del MBA.
 - Certificados de cursos (para completar `perfil/trayectoria.md` con fechas).
 
 ## Cómo agregar una fuente

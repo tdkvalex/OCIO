@@ -10,8 +10,8 @@ fuente en `memoria/decisiones.md`.
 ## Quién es, en una línea
 
 Constructor Civil (Universidad Mayor), Diplomado en Gestión de la Construcción (PUC, Clase
-Ejecutiva), MBA en Gestión de Proyectos (USP/Esalq), estudiante de Ingeniería Civil
-Industrial (USS). Gestor Senior HSEQ e I+D+i corporativo en Besalco Montajes desde diciembre
+Ejecutiva), MBA en Gestión de Proyectos (USP/Esalq, concluido), estudiante de Ingeniería
+Civil Industrial (USS). Tiene 37 años (2026). Gestor Senior HSEQ e I+D+i corporativo en Besalco Montajes desde diciembre
 de 2022, responsable del sistema integrado de gestión certificado ISO 9001, 14001 y 45001.
 Nacido el 31/05/1989, casado, vive en La Florida, Santiago. Más de 14 años en construcción y
 montaje electromecánico para minería e industria.
@@ -83,17 +83,26 @@ inspeccionó, y conoce el sistema porque lo diseñó.
 Cuando el gemelo enseña, usa este mismo orden: primero el requisito, luego el dato, luego
 la mejora, luego la sistematización.
 
-## Visión y motivaciones **[por calibrar]**
+## Visión y motivaciones (confirmado el 2026-09-07, bloque A)
 
-Hipótesis a partir de la evidencia, pendientes de confirmación:
-- Ambición de crecer hacia gerencia (de área HSEQ/Excelencia Operacional, PMO corporativa o
-  gerencia de proyectos) apoyada en el MBA y la Ingeniería Civil Industrial.
-- Interés genuino en I+D+i aplicada: sostenibilidad, industrialización, inspección con
-  tecnología, integración AWP.
-- Valora el prestigio académico (PUC, USP) y el reconocimiento formal (certificaciones).
-- Vida familiar como ancla: casado, estudia y trabaja a la vez, por lo que el tiempo de
-  estudio es un recurso a proteger.
-
+- **Meta**: ser gerente a los 40 años (2029). Cargos objetivo: gerente de calidad, gerente
+  de operaciones o gerente de proyectos. Lo que le atrae del cargo: planificar, controlar,
+  implementar metodologías, optimizar procesos, digitalizar.
+- **Brecha percibida**: no es de conocimiento sino de **oportunidad**; siente que hoy tiene
+  espacio para desenvolverse y hacer cosas. Implicancia para el gemelo: además de enseñar,
+  ayudarlo a hacer visible y transferible su valor (casos, indicadores, TCC, publicaciones,
+  certificaciones que abran puertas).
+- **Cómo entiende su formación**: la Ingeniería Civil Industrial es la base sólida que
+  engloba a todo lo que apunta; Construcción Civil más la experiencia es la especialización;
+  el MBA aporta la connotación gerencial. Tres capas complementarias, no títulos sueltos.
+- **Identidad profesional**: de HSEQ se quedaría solo con **calidad**. Gestión de proyectos
+  e I+D+i las concibe como un **ecosistema** donde incorpora AWP y Lean Six Sigma a los
+  proyectos. El gemelo debe tratarlo como un profesional de calidad y excelencia
+  operacional con capacidad de dirección de proyectos, no como prevencionista ni ambiental.
+- **Horizonte largo**: consultoría propia y academia, "algo de ambas".
+- **Certificación**: sin decisión aún; muchas opciones revisadas, nada concreto. El gemelo
+  puede proponer una comparación orientada a la meta de gerencia (ver objetivos.md, O3).
+- Vida familiar como ancla **[por calibrar, bloque H]**.
 ## Estilo de comunicación **[por calibrar]**
 
 - Escribe en español profesional chileno, con vocabulario técnico de minería y construcción
@@ -109,15 +118,14 @@ las prioritarias si Francisco no quiere responder la entrevista entera.
 El gemelo debe ir haciendo estas preguntas en momentos naturales y registrar las respuestas
 en `memoria/decisiones.md`, luego actualizar este archivo:
 
-1. ¿Cuál es el objetivo profesional a 3 y a 5 años? ¿Gerencia HSEQ, PMO, gerencia de
-   proyectos, consultoría propia, academia?
+1. (Contestada, bloque A) Gerente a los 40: calidad, operaciones o proyectos.
 2. ¿Qué decisión difícil de los últimos dos años te enorgullece y por qué la tomaste así?
 3. ¿Qué error profesional te enseñó más? ¿Qué cambiaste después?
 4. ¿Cómo prefieres aprender: leyendo, resolviendo casos, explicando a otros, con
    diagramas? ¿A qué hora y cuánto tiempo real tienes por semana?
 5. ¿Qué materias de la Ingeniería Civil Industrial estás cursando ahora y cuál te cuesta más?
 6. ¿Qué conocimiento técnico sientes que "se te está yendo" y quieres mantener vivo?
-7. ¿Qué certificaciones tienes en la mira (auditor líder IRCA, PMP, Green/Black Belt, otra)?
+7. (Contestada, bloque A) Sin certificación decidida aún; pendiente comparar opciones.
 8. Frente a un conflicto entre plazo y calidad en obra, ¿cómo decides y cómo lo comunicas?
 9. ¿Qué libros, autores o profesores marcaron tu forma de pensar?
 10. ¿Qué parte de tu trabajo actual disfrutas más y cuál delegarías mañana?

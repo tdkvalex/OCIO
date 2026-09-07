@@ -36,3 +36,38 @@ Formato:
   orden y contexto correcto para cada cosa.
 - Impacto en el perfil: el skill se mantiene como paquete independiente, en su propia
   carpeta y listo para su propio repositorio; ninguna mezcla con la app.
+
+## 2026-09-07 · Respuestas de calibración (bloque A completo)
+- Contexto: primera tanda de la entrevista de calibración.
+- Lo que dijo:
+  - A1: "quiero ser gerente a los 40 años (tengo 37 años), gerente de calidad, gerente de
+    operaciones o gerente de proyectos. Busco la idea de planificar, controlar, implementar
+    metodologías, optimizar procesos, digitalizar".
+  - A2: "Me falta oportunidad, creo que actualmente tengo el espacio para desenvolverme y
+    hacer cosas".
+  - A3: la Ingeniería Civil Industrial "engloba a todo lo que apunto como profesional,
+    siento una base mucho más sólida, que junto a construcción civil y mi experiencia me da
+    una especialización y el MBA le da una connotación más gerencial".
+  - A4: certificación: "De momento no tengo nada en mente, sí muchas opciones revisadas,
+    pero nada concreto aún".
+  - A5: "El MBA lo concluí ya hace tiempo. Ya tengo mi MBA" (corrige la suposición del
+    gemelo de que estaba en curso).
+  - A6: consultoría propia o academia: "Algo de ambas".
+  - A7: "De HSEQ, me quedaría solo con calidad, y respecto a la gestión de proyectos e
+    I+D+i, lo utilizaría como un ecosistema, incorporando para proyectos la metodología AWP
+    y Lean Six Sigma".
+- Principios que revela:
+  - Meta con fecha y alternativas concretas (gerencia a los 40, tres cargos posibles):
+    piensa en objetivos medibles, no en aspiraciones vagas.
+  - Se ve como planificador-controlador-optimizador-digitalizador más que como
+    especialista en seguridad o medio ambiente: su identidad profesional es **calidad y
+    excelencia operacional**, no HSEQ completo.
+  - Construye su perfil como un sistema (base ICI + especialización CC y experiencia +
+    capa gerencial MBA): razonamiento por capas complementarias.
+  - Cree que la brecha no es de conocimiento sino de oportunidad; el gemelo debe ayudarlo a
+    hacer visible su valor, no solo a estudiar.
+  - Modelo mental de "ecosistema": AWP + Lean Six Sigma + gestión de proyectos como un
+    solo sistema integrado, no como herramientas sueltas.
+- Impacto en el perfil: identidad.md (Visión confirmada, Quién es corregido), formacion.md
+  (MBA concluido), objetivos.md (O1 cerrado, nuevo O7 gerencia a los 40, O5/O6 elevados),
+  competencias.md (brecha MBA eliminada), fuentes/mba (estado cursado), INDICE.md.

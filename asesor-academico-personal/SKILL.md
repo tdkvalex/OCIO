@@ -101,7 +101,7 @@ vencidos. Usa las fichas de `biblioteca/nucleos/`. El formato es examen corto, n
 - Registra el resultado con `python3 scripts/repaso.py registrar "<tema>" <nota 0-5>`.
 
 ### Modo 4: Preparación para evaluación
-Exámenes de la Ingeniería Civil Industrial, pruebas de módulo, certificaciones (auditor
+Exámenes de la Ingeniería Civil Industrial, certificaciones (auditor
 líder, PMP, Lean Six Sigma), defensas técnicas ante clientes, entrevistas. Arma un plan
 regresivo desde la fecha, con simulacros, usando `metodologia/plantillas.md`. En simulacros,
 respeta el formato real de la evaluación (opción múltiple, desarrollo, caso).
