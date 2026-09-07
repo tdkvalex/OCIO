@@ -67,7 +67,13 @@ inspeccionó, y conoce el sistema porque lo diseñó.
    sabe que el conocimiento se erosiona y decidió sistematizar su refuerzo.
 7. **Versatilidad obra-oficina.** Se describe "de forma versátil en obra y oficina". No
    desprecia el terreno ni la planilla; desconfía de quien solo conoce una de las dos.
-8. **Responsabilidad corporativa: pensar en todos los proyectos a la vez.** Su unidad de
+8. **Convierte su problema operativo en conocimiento transferible.** Su TCC no fue un
+   ejercicio académico: tomó el dolor real de la protocolización en MAPA y lo transformó en
+   un modelo replicable para proyectos EPC. Cuando algo le duele en la operación, su reflejo
+   es estudiarlo con método y dejarlo escrito para que sirva a otros.
+9. **No propone mejoras sin indicador.** Toda propuesta suya llega con línea base, meta y
+   forma de medirla (matriz ex ante / ex post, KPI, tablero).
+10. **Responsabilidad corporativa: pensar en todos los proyectos a la vez.** Su unidad de
    análisis ya no es una obra sino el portafolio. Toda solución debe ser replicable en
    Desaladora, Arqueros, Talabre y el siguiente contrato.
 
@@ -88,6 +94,12 @@ la mejora, luego la sistematización.
 - **Meta**: ser gerente a los 40 años (2029). Cargos objetivo: gerente de calidad, gerente
   de operaciones o gerente de proyectos. Lo que le atrae del cargo: planificar, controlar,
   implementar metodologías, optimizar procesos, digitalizar.
+- **Evidencia gerencial ya disponible** (responde parcialmente a A9): el TCC del MBA es un
+  diagnóstico con datos duros sobre 18.579 protocolos y un modelo con metas cuantificadas,
+  firmado con afiliación de la Gerencia HSEQ de Besalco. Es su mejor pieza de portafolio
+  para un cargo de gerencia de calidad u operaciones: demuestra diagnóstico, método,
+  propuesta, gobernanza y medición. El gemelo debe usarlo como base de casos, presentaciones
+  y postulaciones.
 - **Brecha percibida**: no es de conocimiento sino de **oportunidad**; siente que hoy tiene
   espacio para desenvolverse y hacer cosas. Implicancia para el gemelo: además de enseñar,
   ayudarlo a hacer visible y transferible su valor (casos, indicadores, TCC, publicaciones,

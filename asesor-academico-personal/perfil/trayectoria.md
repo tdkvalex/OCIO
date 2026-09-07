@@ -17,7 +17,7 @@ de cargo, proyecto o curso. No inventar fechas: si un dato falta, dejar "[pendie
 |---|---|---|---|
 | 12/2022 - actual | Besalco Montajes (corporativo) | Gestor Senior HSEQ e I+D+i | Diseño y mantención del sistema de gestión HSEQ corporativo (ISO 9001, 14001, 45001); documentación corporativa adaptable por proyecto; certificaciones externas; programa anual de auditorías (obras y oficina); consolidación de KPI en paneles para gerencia; mejora continua con automatización y digitalización; integración de AWP al aseguramiento de calidad; biblioteca de metodologías constructivas y administrativas; proyectos I+D+i; optimización Lean / Six Sigma; representante HSEQ en estudio de propuestas y licitaciones (planes, anexos, defensa técnica). |
 | 02/2022 - 11/2022 | Besalco MD Montajes | Encargado QA/QC, Proyecto Planta Salar (Albemarle) | Aseguramiento y control de calidad de construcción y montaje electromecánico; sistema de gestión con análisis de datos y protocolos de inspección dinámicos; cumplimiento contractual hasta cierre de construcción y precomisionamiento. |
-| 02/2020 - 09/2021 | Consorcio Besalco MAPA | Coordinador QA/QC, Proyecto MAPA (Celulosa Arauco) | Coordinación, planificación y supervisión de QA/QC; cierre de no conformidades; control de estándares técnicos trazable a entregables contractuales. |
+| 02/2020 - 09/2021 | Consorcio Besalco MAPA | Coordinador QA/QC, Proyecto MAPA (Celulosa Arauco) | Coordinación, planificación y supervisión de QA/QC; cierre de no conformidades; control de estándares técnicos trazable a entregables contractuales. Es el caso empírico de su TCC: 18.579 protocolos gestionados, índice maestro con reglas de validación y respaldo escaneado. |
 | 11/2016 - 09/2018 | SUEZ | Ingeniero de Proyectos, Biofactorías Gran Santiago | Administración de contratos multidisciplinarios de construcción y montaje en plantas de tratamiento de aguas; planificación, control de recursos, suministros; mejoras operativas bajo ISO 31000, 45001 y 55001; continuidad del servicio. |
 | 03/2015 - 10/2016 | SUEZ | Proyectista, Codelco DET y Rancagua | Estudios y diseños de redes hídricas para operación y mantenimiento en faenas mineras; levantamientos, control de consumos, optimización, coordinación de equipos y logística. |
 | 02/2011 - 10/2019 | Consultor independiente | Asesor técnico | Edificación, urbanismo y restauración: planificación, cubicaciones, presupuestos, coordinación técnica con stakeholders; obra y oficina. |
@@ -45,6 +45,15 @@ de cargo, proyecto o curso. No inventar fechas: si un dato falta, dejar "[pendie
 - **Restauración red de agua potable de Sewell** (SUEZ, 2015-2016): más de 4.000 usuarios.
 - **Operación y mantenimiento de planta, Coya, Codelco** (SUEZ, 2016): emergencia ambiental.
 - **Rehabilitación post terremoto, Talcahuano** (consultoría, 2014-2015).
+
+## Producción académica
+- **TCC del MBA USP/Esalq (2026)**: "Estandarización y digitalización de protocolos de
+  calidad en proyectos de construcción para la minería", con Jessica Suarez Campoli como
+  orientadora. Estudio de caso del universo completo de 18.579 protocolos del proyecto de
+  Arauco (2019-2022), con diagnóstico cuantitativo, modelo propuesto en tres frentes
+  (estandarización, digitalización, gobernanza) y matriz ex ante/ex post con metas.
+  Ficha completa en `biblioteca/fuentes/tcc-protocolos-calidad-mineria.md`.
+  Defensa presentada en 20 láminas.
 
 ## Cursos y certificaciones
 - Auditor Interno de Sistemas Integrados de Gestión ISO 9001-14001-45001-50001, Bureau Veritas.

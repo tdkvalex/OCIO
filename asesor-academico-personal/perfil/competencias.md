@@ -15,6 +15,9 @@ La cola operativa está en `memoria/repaso.md`; aquí se mantiene la vista de co
 - Administración de contratos EPC / montaje; relación mandante-contratista.
 - Cubicaciones, presupuestos, APU, planificación de obra (Project, P6).
 - AutoCAD, Procore (administrador), SAP (usuario de gestión).
+- Investigación aplicada: estudio de caso con enfoque mixto, estadística descriptiva y
+  Pareto sobre grandes volúmenes documentales, redacción académica con normas APA
+  (demostrado en el TCC del MBA, 18.579 protocolos analizados).
 
 ## Refuerzo (estudiado; se erosiona sin uso; a la cola de repaso)
 | Núcleo | Ficha | Por qué se erosiona |

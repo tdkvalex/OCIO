@@ -12,6 +12,7 @@ técnico (conocimiento que Francisco ya tiene y que se erosiona) están en `nucl
 | 2 | Malla curricular Construcción Civil | fuentes/malla-construccion-civil.md | Malla | Cursado | Refuerzo de fundamentos | 2026-09-07 |
 | 3 | Diplomado en Gestión de la Construcción, PUC Clase Ejecutiva | fuentes/diplomado-gestion-construccion-uc.md | Programa | Cursado 2021-2022 | Refuerzo: contratos, calidad, planificación, costos | 2026-09-07 |
 | 4 | MBA en Gestión de Proyectos, USP/Esalq (contenido programático) | fuentes/mba-gestion-proyectos-usp-esalq.md | Programa | Concluido | O3 certificación, O7 gerencia, O4 refuerzo | 2026-09-07 |
+| 5 | TCC MBA: estandarización y digitalización de protocolos de calidad en minería (documento y defensa) | fuentes/tcc-protocolos-calidad-mineria.md | Obra propia | Aprobado y defendido | O6 AWP, O7 gerencia, O8 publicación, O9 validación | 2026-09-07 |
 
 ## Núcleos de refuerzo técnico
 
@@ -31,7 +32,6 @@ técnico (conocimiento que Francisco ya tiene y que se erosiona) están en `nucl
 ## Pendientes de ingesta
 Material que Francisco mencionó o que se sabe que existe pero aún no se ha adjuntado:
 - Malla y avance de Ingeniería Civil Industrial (USS).
-- Tema y fecha de conclusión del TCC del MBA.
 - Certificados de cursos (para completar `perfil/trayectoria.md` con fechas).
 
 ## Cómo agregar una fuente

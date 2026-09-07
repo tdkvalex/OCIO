@@ -1,8 +1,10 @@
 # Ficha de fuente: MBA en Gestión de Proyectos, USP/Esalq (contenido programático)
 
 - **Tipo**: programa de curso (brochure escaneado, 9 páginas; se leyó como imagen).
-- **Estado para Francisco**: **concluido** (confirmado el 2026-09-07). Fecha de conclusión y
-  tema del TCC **[pendiente]**. El brochure describe la cohorte con inicio el 07/10/2024;
+- **Estado para Francisco**: **concluido** (confirmado el 2026-09-07). TCC entregado y
+  defendido en 2026: "Estandarización y digitalización de protocolos de calidad en proyectos
+  de construcción para la minería"; ficha en
+  `biblioteca/fuentes/tcc-protocolos-calidad-mineria.md`. El brochure describe la cohorte con inicio el 07/10/2024;
   se usa como mapa de contenidos para refuerzo.
 - **Formato**: clase semanal en vivo los lunes de 19:00 a 23:00 (UTC-3, es decir, de
   19:00 a 23:00 hora de Chile en verano o de 18:00 a 22:00 en horario de invierno chileno;
@@ -58,7 +60,7 @@ híbridos · Emprendimientos · Tópicos especiales.
 | Liderazgo, influencia sin autoridad, conflictos, cambio | Refuerzo con oportunidad | Cargo corporativo sin autoridad directa sobre obras: influencia sin autoridad es su realidad diaria |
 | Estrategia, gobernanza, compliance, ética | Refuerzo | Sistema de gestión y auditorías |
 | Innovación y Design Thinking | Brecha con base | Lidera I+D+i; falta el método formal |
-| TCC | Hecho | Registrar tema y conclusiones en perfil/trayectoria.md cuando Francisco lo indique; puede ser base de un artículo o caso |
+| TCC | Hecho | Protocolos de calidad en EPC minero, caso MAPA con 18.579 registros; base posible de artículo o caso corporativo (O8) |
 
 ## Cómo usarlo con el gemelo
 - Como refuerzo: los temas del MBA ya están en `memoria/repaso.md` vía el núcleo PMBOK.

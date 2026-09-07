@@ -16,7 +16,7 @@ Reglas para el gemelo al recibir respuestas:
    código nuevo y avisarle.
 5. Nunca completar una respuesta que él no dio. Si falta, la pregunta sigue abierta.
 
-Avance: 7 de 52 contestadas (bloque A completo, A8-A11 nuevas).
+Avance: 8 de 54 contestadas (bloque A: A1-A8 listas; A9-A13 abiertas).
 
 ---
 
@@ -29,8 +29,10 @@ Avance: 7 de 52 contestadas (bloque A completo, A8-A11 nuevas).
 - [x] (2026-09-07) A5. ¿Tienes tema en mente para el TCC del MBA? Si no, ¿qué problema de tu trabajo te gustaría resolver con rigor académico?
 - [x] (2026-09-07) A6. ¿Consultoría propia o academia están en tu horizonte, aunque sea lejano?
 - [x] (2026-09-07) A7. Si tuvieras que elegir entre profundizar en HSEQ, en gestión de proyectos o en I+D+i, ¿cuál y por qué?
-- [ ] A8. (nueva) ¿Cuál fue el tema de tu TCC del MBA, cuándo lo concluiste y qué concluiste? ¿Lo has aplicado?
-- [ ] A9. (nueva) Dijiste que te falta oportunidad, no conocimiento. ¿Qué evidencia concreta de resultados gerenciales tienes hoy (casos con cifras, procesos implementados, ahorros, certificaciones logradas) y cuál te falta para que un gerente general te vea como gerente?
+- [x] (2026-09-07) A8. Tema del TCC. Contestada con el documento y la defensa: estandarización y digitalización de protocolos de calidad en EPC minero, caso de Arauco con 18.579 protocolos, 2026.
+- [ ] A12. (nueva) ¿El modelo del TCC se implementó en Besalco después de la defensa? ¿Qué parte sí, qué parte no y por qué? ¿Los indicadores mejoraron?
+- [ ] A13. (nueva) ¿Quieres convertir el TCC en artículo, ponencia o caso corporativo? Detecté ocho inconsistencias menores entre el documento y la defensa que conviene corregir antes (están en la ficha del TCC). ¿Las revisamos?
+- [ ] A9. (parcialmente respondida por el TCC) Dijiste que te falta oportunidad, no conocimiento. Además del TCC, ¿qué evidencia con cifras tienes (procesos implementados, ahorros, certificaciones logradas, KPI mejorados) y cuál te falta para que un gerente general te vea como gerente?
 - [ ] A10. (nueva) De las certificaciones que revisaste, ¿cuáles eran y qué te frenó en cada una (costo, tiempo, utilidad, requisitos)?
 - [ ] A11. (nueva) ¿Dónde ves más probable la gerencia: dentro de Besalco, en otra constructora o contratista, en un mandante minero, o en una consultora?
 
