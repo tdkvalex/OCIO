@@ -299,3 +299,144 @@ ingeniería y administración que libera. Ese es exactamente el tipo de propuest
 a un jefe de un gerente.
 
 Fuente del mecanismo general: [SENCE, Franquicia Tributaria](https://sence.gob.cl/empresas/franquicia-tributaria).
+
+---
+
+# Parte 3. Qué estudiar en cada nivel y con qué
+
+Bibliografía completa y verificada en `biblioteca/bibliografia-lean-six-sigma.md` (48
+referencias, 12 de acceso abierto). Contenido técnico de la capa digital en
+`biblioteca/nucleos/quality-40-digitalizacion-procesos.md`.
+
+## Nivel 1. Lean y mejora continua avanzada
+
+**Núcleo de lectura**: Liker 2.ª edición 2021 como mapa completo; Rother y Shook para el mapa
+de flujo de valor, que es la herramienta que vas a usar; Rother *Toyota Kata* para entender
+por qué las mejoras no se sostienen cuando se va el consultor; Smalley *Four Types of
+Problems* para no aplicar DMAIC a problemas que no lo requieren, que es el error más caro
+del despliegue. Ohno si quieres la fuente original.
+
+**Ejercicio del nivel**: mapa de flujo de valor del proceso de protocolización, con tiempo de
+espera y tiempo de valor agregado. Tu propio caso ya tiene los datos.
+
+**Puente con lo que ya sabes**: la literatura es clara en que Lean Construction y Lean Six
+Sigma se tocan y se separan. Se tocan porque el sistema del último planificador y el ciclo
+DMAIC comparten estructura de aprendizaje: el porcentaje de plan cumplido y el análisis de
+causas de no cumplimiento son medir y analizar aplicados a la fiabilidad de la programación.
+Se separan porque una obra es un prototipo y aplicar cartas de control a partidas únicas
+produce gráficos sin significado. **En montaje industrial la frontera desaparece**, porque
+hay volumen y repetición suficientes. Ese es exactamente tu terreno.
+
+## Nivel 2. Lean Six Sigma, DMAIC y control de procesos
+
+**Núcleo de lectura**: para el examen, McShane-Vaughn 4.ª edición 2022 si eliges ASQ, o
+Pyzdek y Keller 6.ª edición 2023. Para terreno, el *Pocket Toolbook* de George. **Y el más
+importante para tu caso concreto**: Wheeler, *Understanding Variation*, 158 páginas contra la
+interpretación de datos mes a mes. Es el antídoto exacto al informe de gestión que reacciona
+a ruido, y es corto como para entregárselo a un gerente que no leerá a Montgomery.
+
+**Lectura crítica antes de comprometerte con un programa**: Antony y otros, *The Ten
+Commandments of Lean Six Sigma*, que destila la investigación sobre por qué fracasan los
+despliegues en diez reglas.
+
+**Ejercicio del nivel**: cartas de control operativas en tu tablero corporativo, con reglas
+de reacción escritas. Es decir, dejar por escrito qué se hace cuando un punto sale de
+límites y qué no se hace cuando está dentro.
+
+## Nivel 3. Digitalización de procesos
+
+Todo el contenido está en el núcleo de Quality 4.0. Los tres puntos que más te sirven:
+
+- **Quality 4.0 no reemplaza los métodos tradicionales, se construye sobre ellos**, y cinco
+  de sus once ejes no son tecnológicos. Es el mejor argumento contra la idea de que
+  digitalizar es comprar software.
+- **La minería de procesos tiene estándar IEEE**, no es moda de proveedor, y **viene incluida
+  en la licencia Power Automate Premium**. En una empresa que ya paga Power Platform puedes
+  montar un piloto sin comprar nada.
+- **La calidad de dato va antes que la automatización**, no después. Tu propio TCC midió
+  completitud de campos críticos sin conocer el marco formal: ponerle nombre convierte un
+  hallazgo en un argumento.
+
+## Nivel 4. Green Belt: analítica y automatización
+
+**Lo que realmente exige el temario**: en medir, análisis del sistema de medición completo
+(sesgo, linealidad, estabilidad, repetibilidad y reproducibilidad) y capacidad de proceso. En
+analizar, estadística inferencial y pruebas de hipótesis con datos normales, no normales y
+por atributos. En mejorar, regresión simple y múltiple, y diseño de experimentos. En
+controlar, cartas de individuales, media y rango, u y p.
+
+**Software**: Minitab para el trabajo de calidad, porque produce salidas en el formato que
+los revisores reconocen. Python o R si vas a integrar con tus tableros. **Power BI no
+reemplaza a Minitab**, se empareja con él: su lenguaje de fórmulas no cubre regresión
+compleja ni agrupamiento.
+
+**Sobre el aprendizaje automático**: aporta detección de anomalías en la fase de controlar,
+que es control estadístico extendido, y mantenimiento predictivo en mejorar. Pero **no da
+causa raíz**. La literatura de 2024 a 2026 que cruza mejora continua con inteligencia
+artificial es mayoritariamente entusiasta y poco crítica; la revisión de arXiv 2503.01858
+(2025) es la que sí discute limitaciones.
+
+## Nivel 5. Black Belt ejecutivo: estrategia y transformación
+
+**Hoshin Kanri** es la pieza central. Dos artefactos que hay que dominar: la **matriz X**, una
+sola página que vincula objetivos de largo plazo, objetivos anuales, prioridades de mejora,
+métricas y responsables, de modo que la estrategia queda **auditable**; y el **catchball**,
+la negociación de ida y vuelta entre niveles hasta que ambas partes se comprometen. El
+catchball es donde la mayoría de los despliegues fracasan, porque se sustituye por una
+cascada de cifras. Referencias: Akao (1991), Jackson (2006) para la matriz X, y Pascal Dennis
+*Getting the Right Things Done* (2006) por ser el más legible para público ejecutivo.
+
+**Selección de proyectos, con dato duro**: un estudio con proceso analítico jerárquico
+encontró que los tres criterios de mayor peso son **impacto en el cliente (0,443), beneficio
+financiero (0,21) y objetivos operacionales (0,173)**, que suman más del 80 % del peso total.
+Es un buen contra-argumento cuando un directorio quiere priorizar solo por ahorro.
+
+**Validación financiera, la regla no negociable**: separa y etiqueta los ahorros duros (que
+aparecen en el estado de resultados) de los blandos (que incluyen el costo evitado, donde el
+gasto nunca ocurre y por tanto no hay línea que baje). **El firmante del beneficio no eres
+tú, es Finanzas.** Mezclarlos es la forma más rápida de perder credibilidad ante un gerente
+de administración y finanzas.
+
+### Dos cosas que debes saber para no quedar mal ante un directorio informado
+
+**El "70 % de los cambios fracasa" es un mito.** Viene de una frase al pasar de Beer y Nohria
+en Harvard Business Review (2000) y de una atribución errónea a Hammer y Champy (1993). No
+tiene fundamento empírico y quienes la originaron nunca aportaron evidencia. Citarla como
+dato duro destruye credibilidad. Citarla **como mito, con su trazabilidad**, es un excelente
+momento para hablar de calidad de la evidencia, que es justamente el mensaje de un programa
+de mejora.
+
+**Kotter y ADKAR no son teoría probada.** Los ocho pasos de Kotter derivan de observación
+anecdótica y nunca fueron testeados empíricamente. ADKAR es un producto propietario de una
+consultora, cuya evidencia son sus propias encuestas a sus propios clientes. Úsalos como
+lenguaje común y lista de verificación, y **decláralo explícitamente**: eso protege tu
+credibilidad en vez de dañarla.
+
+**Causas reales de fracaso**, con método y peer review: el estudio de Frontiers in Mechanical
+Engineering (2024) sobre factores críticos de fracaso de Lean Six Sigma sostenible, y la
+revisión fundacional de Albliwi y Antony (2014) que analizó 56 artículos e identificó 34
+factores, donde dominan la falta de compromiso de la alta dirección, la comunicación
+deficiente y la formación insuficiente.
+
+### Modelos de madurez: los tres evalúan cosas distintas
+
+| Modelo | Qué evalúa | Sesgo |
+|---|---|---|
+| **Shingo** | Comportamiento y cultura contra 10 principios rectores. **Explícitamente no evalúa el uso de herramientas**: no premia haber implementado 5S, premia el comportamiento | Cultural |
+| **EFQM 2025** | Tres áreas (dirección, ejecución, resultados), 7 criterios, 32 partes. Vigente desde junio de 2024, con el valor sostenible ambiental y social como eje | Estratégico |
+| **Baldrige** | Sistema de gestión completo en 7 categorías sobre 1.000 puntos, con **450 puntos en resultados desde 1997**. La edición 2026 introduce tres rutas de madurez: establecer, desarrollar, madurar | Resultados |
+
+El dato de Baldrige, 45 % del puntaje en resultados, es el mejor argumento disponible contra
+el teatro de proceso: tener proceso sin resultados conmensurados no es aceptable.
+
+### Costo de la mala calidad: cuidado con los números de internet
+
+Circulan rangos muy dispares: entre 10 y 30 % de los ingresos según unas fuentes, entre 15 y
+25 % de las ventas según otras, y una cifra de 15 a 20 % atribuida a ASQ que **no pudo
+trazarse a una fuente primaria**. Ninguna tiene base metodológica identificable.
+
+**Regla práctica**: ante un directorio usa el costo de la mala calidad **calculado de tu
+propia empresa**, nunca un referente de internet. Ese cálculo, además, es exactamente tu
+proyecto P5 y hoy no lo tienes medido. Lo que sí es sólido conceptualmente es el modelo de
+cuatro componentes: prevención, evaluación, fallas internas y fallas externas, donde
+prevención suele ser la porción menor pese a tener el mayor retorno.

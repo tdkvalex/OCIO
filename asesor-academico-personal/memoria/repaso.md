@@ -44,3 +44,6 @@ python3 scripts/repaso.py listar                        # toda la cola ordenada 
 | Tratamiento de aguas, RILES y desalación | nucleos/hidraulica-redes-tratamiento.md | 0 | 2.5 | 1 |  | 2026-09-07 |
 | Valor ganado: PV, EV, AC, índices, EAC | nucleos/costos-presupuestos-control.md | 0 | 2.5 | 1 |  | 2026-09-07 |
 | Ágil e híbrido: Scrum, Kanban, criterios de elección | nucleos/pmbok-enfoques-proyectos.md | 0 | 2.5 | 1 |  | 2026-09-07 |
+| Calidad de dato: seis dimensiones, ISO 8000 y 25012 | nucleos/quality-40-digitalizacion-procesos.md | 0 | 2.5 | 1 |  | 2026-09-10 |
+| Hoshin Kanri, madurez y costo de la mala calidad | metodologia/ruta-excelencia-operacional.md | 0 | 2.5 | 1 |  | 2026-09-10 |
+| Quality 4.0: 11 ejes, digital lean, minería de procesos | nucleos/quality-40-digitalizacion-procesos.md | 0 | 2.5 | 1 |  | 2026-09-10 |

@@ -36,6 +36,7 @@ La cola operativa está en `memoria/repaso.md`; aquí se mantiene la vista de co
 ## Brecha (objetivos de aprendizaje; ver memoria/objetivos.md)
 - Contenidos de la Ingeniería Civil Industrial (USS) **[pendiente confirmar asignaturas]**.
 - Certificación por decidir (O3): PMP, Lean Six Sigma Black Belt o auditor líder ISO 9001.
+- Quality 4.0, minería de procesos, calidad de dato formal y estadística inferencial aplicada: brechas identificadas en la ruta de excelencia operacional (`metodologia/ruta-excelencia-operacional.md`).
 - Competencias gerenciales para O7 (finanzas de operación, dirección de personas a escala, negociación comercial) **[por evaluar con Francisco]**.
 - Todo material nuevo que adjunte pasa por aquí hasta que se demuestre dominio.
 
