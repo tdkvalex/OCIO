@@ -16,7 +16,7 @@ Reglas para el gemelo al recibir respuestas:
    código nuevo y avisarle.
 5. Nunca completar una respuesta que él no dio. Si falta, la pregunta sigue abierta.
 
-Avance: 8 de 54 contestadas (bloque A: A1-A8 listas; A9-A13 abiertas).
+Avance: 8 de 57 contestadas (bloque A: A1-A8 listas; A9-A13 abiertas; E8-E10 nuevas).
 
 ---
 
@@ -75,6 +75,9 @@ Avance: 8 de 54 contestadas (bloque A: A1-A8 listas; A9-A13 abiertas).
 - [ ] E2. ¿Qué dominas tan bien que podrías enseñarlo mañana sin preparar?
 - [ ] E3. ¿Qué tema técnico te da inseguridad cuando alguien te pregunta en una reunión?
 - [ ] E4. De los diez núcleos de la biblioteca, ¿cuáles te importan más y cuál sobra o falta?
+- [ ] E8. (nueva) Las cinco líneas de formación que compartiste, ¿vienen de un programa concreto que estás evaluando? Si es así, ¿de qué institución y cuánto cuesta? El nombramiento coincide con varios programas comerciales de Lean Six Sigma 4.0, no con uno solo.
+- [ ] E9. (nueva) ¿Buscas la certificación por la credencial (para el CV y para postular a gerencia) o por el contenido (para aplicarlo en Besalco)? La respuesta cambia radicalmente qué ruta conviene.
+- [ ] E10. (nueva) ¿Besalco financia formación? ¿Hay presupuesto de capacitación o franquicia SENCE que puedas usar?
 - [ ] E5. ¿Qué normas, reglamentos o estándares consultas más seguido en el trabajo? ¿Cuáles deberías conocer mejor?
 - [ ] E6. ¿Qué herramienta digital quieres dominar mejor (Power BI avanzado, Python, Procore, P6, otra)?
 - [ ] E7. ¿Qué de AWP ya aplicas en Besalco y qué te falta para decir que lo dominas?

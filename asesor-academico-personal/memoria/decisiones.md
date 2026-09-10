@@ -71,3 +71,23 @@ Formato:
 - Impacto en el perfil: identidad.md (Visión confirmada, Quién es corregido), formacion.md
   (MBA concluido), objetivos.md (O1 cerrado, nuevo O7 gerencia a los 40, O5/O6 elevados),
   competencias.md (brecha MBA eliminada), fuentes/mba (estado cursado), INDICE.md.
+
+## 2026-09-10 · Preferencia declarada (calibración, bloque E anticipado)
+- Contexto: compartió una imagen con cinco líneas de formación y pidió investigación,
+  bibliografía, referencias y personalización a su perfil gerencial.
+- Lo que dijo: "esos enfoques los encuentro clave en mi formación", refiriéndose a:
+  Lean Manufacturing y Mejora Continua Avanzada; Lean Six Sigma DMAIC y Control de
+  Procesos; White & Yellow Belt 4.0 Digitalización de Procesos; Green Belt Analítica y
+  Automatización; Black Belt Ejecutivo Estrategia y Transformación 4.0.
+- Principio que revela: confirma y precisa la respuesta A7. Su ruta de especialización es
+  una **escalera de excelencia operacional con capa digital**, que va del piso técnico
+  (Lean y control de procesos) al piso estratégico (transformación y despliegue
+  corporativo). No le interesan las certificaciones como credencial suelta sino como
+  niveles de una progresión coherente. Refuerza el principio 4 (digitalizar y automatizar)
+  y el 9 (no propone mejoras sin indicador).
+- Nota de verificación: el nombramiento de las cinco líneas coincide con el estilo de
+  varios programas comerciales de "Lean Six Sigma 4.0" (proveedores mexicanos y españoles),
+  no con un programa único identificable. **[Pendiente]** confirmar si está evaluando un
+  programa concreto y cuál. La ruta del gemelo se construyó independiente de proveedor.
+- Impacto en el perfil: nueva ruta `metodologia/ruta-excelencia-operacional.md`, objetivo
+  O3 con contenido, competencias y cola de repaso.
