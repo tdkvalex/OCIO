@@ -129,3 +129,173 @@ Reglas que sostienen el plan:
 - Antes de cada examen arma simulacros con el formato real del organismo elegido.
 - Cada avance del proyecto se registra en la bitácora, para que el día de la defensa o la
   entrevista tengas la trazabilidad completa de lo que hiciste y cuándo.
+
+---
+
+# Parte 2. Certificaciones: panorama y decisión
+
+> **Advertencia de método, léela antes de usar cualquier cifra.** La investigación se hizo
+> el 10 de septiembre de 2026 con buscador, porque el entorno de red bloqueó el acceso
+> directo a los sitios oficiales (asq.org, iassc.org, iso.org y todos los dominios
+> universitarios chilenos probados). Es decir: los datos vienen de resúmenes de páginas
+> indexadas, **no de lectura de la fuente oficial**. Los aranceles y requisitos marcados
+> como en conflicto **deben verificarse antes de pagar**. Donde no hay dato, dice que no
+> lo hay; nada está estimado.
+
+## Cómo decidir cuál certificación rendir (marco de decisión)
+
+La pregunta no es "cuál es la mejor certificación" sino "cuál mueve la aguja hacia una
+gerencia en 2029". Tres criterios, en orden de peso para tu caso:
+
+1. **¿Exige proyecto con resultado verificado?** Una certificación que solo pide aprobar un
+   examen te da una credencial; una que exige proyecto te obliga a producir evidencia
+   gerencial, que es justamente lo que declaraste que te falta. Para ti, la que exige
+   proyecto vale más aunque cueste más.
+2. **¿La reconoce quien te va a contratar?** En minería y construcción chilena el que
+   evalúa tu currículum es un gerente de operaciones o de personas, no un experto en
+   calidad. Pesa más una institución que reconozca de inmediato que la pureza del organismo
+   certificador.
+3. **¿Es financiable y compatible con tu tiempo?** Ver la sección de SENCE. Un programa
+   presencial en horario laboral es inviable con tu carga.
+
+Un cuarto criterio que la mayoría ignora y que a ti te conviene mirar: **la certificación
+caduca o no**. Algunas exigen recertificación periódica con unidades de desarrollo
+profesional, lo que implica costo y gestión permanentes.
+
+### La pregunta previa que hay que responder antes de gastar
+Está en la entrevista como E9: ¿buscas la credencial o el contenido? Si es la credencial
+para postular, la ruta óptima es la certificación más reconocida al menor costo y tiempo.
+Si es el contenido para aplicarlo en Besalco, puedes obtener el 80 % del valor con
+bibliografía, tu propio proyecto y el gemelo, sin pagar nada, y certificar después cuando
+haya presupuesto. Mi lectura de tu perfil dice que necesitas ambas, pero en este orden: el
+contenido y el proyecto primero, porque son los que producen la evidencia; la credencial
+después, porque sin evidencia es solo una línea más en el currículum de alguien que ya
+tiene un MBA, un diplomado y una segunda carrera.
+
+## Los tres organismos certificadores
+
+| Criterio | ASQ | IASSC | CSSC |
+|---|---|---|---|
+| Naturaleza | Sociedad profesional, fundada en 1946 | Certificador de exámenes puro | Entidad privada de acreditación y examen |
+| Exige experiencia | Sí. Green Belt: 3 años en áreas del cuerpo de conocimiento. Black Belt: experiencia más proyecto | **No** | No |
+| Exige proyecto | **Sí, solo Black Belt**: un proyecto con declaración jurada firmada, o dos proyectos con declaración | **No** | Solo en niveles II y III opcionales |
+| Formato de examen | **Libro abierto**, con material propio encuadernado; hojas sueltas no se aceptan | **Libro cerrado**, con supervisor | En línea |
+| Black Belt: preguntas y duración | 165 preguntas (150 puntuadas), 4 h 18 min | 150 preguntas, 4 h | No verificado |
+| Costo aproximado del Black Belt | 438 a 585 USD **(fuentes en conflicto)** | ~395 USD por el examen | ~295 USD |
+| Vigencia | Green Belt vitalicio. Black Belt exige 18 unidades de recertificación cada 3 años, o reexamen | Estado "vigente" por 3 años; después queda "caducado" de forma permanente si no recertifica dentro de los 90 días siguientes | Vitalicia, sin renovación |
+| Peso reputacional | Alto | Medio alto | Bajo a medio |
+
+**El hallazgo más útil y menos publicitario** de toda la investigación: la mayoría de los
+empleadores **no diferencia fuertemente entre ASQ e IASSC** al contratar. Lo que pesa es el
+nivel de la certificación, la experiencia relevante y la capacidad de demostrar mejoras
+reales. Dicho de otro modo: la discusión sobre cuál organismo es más puro importa mucho
+menos que tener un proyecto que puedas contar con cifras. Eso juega a tu favor.
+
+**Qué significa esto para ti concretamente.** ASQ es el único que exige proyecto con
+declaración jurada de un patrocinador, y esa exigencia es justamente lo que convierte la
+certificación en evidencia gerencial. Dado que en minería y construcción chilena a los
+candidatos se los juzga por proyectos ejecutados, es la que mejor se alinea con tu objetivo
+de 2029. IASSC es defendible si ya tienes los proyectos y solo necesitas la credencial
+rápido y barato. CSSC sirve como autoestudio económico: publica guías gratuitas y su White
+Belt no cuesta nada, pero tiene una crítica documentada seria, que su modelo permite rendir
+el examen pocos días después de un curso de una semana sin demostrar experiencia práctica.
+No es un organismo de normalización ni está acreditado, pese a que el nombre lo sugiera.
+
+## Las normas ISO: úsalas como referencia, no como credencial
+
+| Norma | Contenido | Estado |
+|---|---|---|
+| ISO 13053-1:2011 | Metodología DMAIC: mejores prácticas por fase, gestión de proyectos Six Sigma, roles y formación del personal | Vigente, revisada y confirmada en 2022 (fuente secundaria única) |
+| ISO 13053-2:2011 | Herramientas y técnicas, en fichas técnicas por fase DMAIC | Vigente, estado individual no verificado |
+| ISO 18404:2015 | Competencias de personas y organizaciones en Six Sigma y Lean. Define Black Belt, Green Belt y practicante Lean. Excluye explícitamente Yellow Belt y Design for Six Sigma | Marcada "por revisar" desde junio de 2023; estado a 2026 no verificado |
+
+**Dato que ahorra dinero y tiempo**: ISO 18404 tiene, según la literatura académica,
+**solo dos organizaciones certificadas en el mundo**. Christoph Roser la ha criticado como
+una idea cuestionable que canaliza dinero hacia los organismos de certificación sin mejorar
+la calidad del Lean, y se le reprocha no haber consultado a los practicantes japoneses ni a
+ASQ en su desarrollo. **No es una ruta de certificación personal viable.** Sirve como
+referencia de competencias para escribir un perfil de cargo o un plan de desarrollo, que es
+un uso perfectamente legítimo y probablemente el único.
+
+## Oferta en Chile (información del 10 de septiembre de 2026)
+
+La conclusión de fondo es más importante que la lista: **la oferta universitaria chilena
+entrega certificación propia de la universidad, no la credencial internacional**. Si quieres
+ASQ o IASSC, el camino típico es diplomado chileno para formarte más rendir aparte el examen
+internacional, pagando ambos. Las excepciones son consultoras que declaran alineamiento con
+examen externo.
+
+| Institución | Programa | Certificación que entrega |
+|---|---|---|
+| Clase Ejecutiva UC | Lean Six Sigma para servicios (curso corto, 6 clases en línea más 2 sincrónicas) | Certificado de aprobación de la Pontificia Universidad Católica. No prepara para examen internacional |
+| Universidad Adolfo Ibáñez | Green Belt, Black Belt, y combinado | Certificación propia |
+| Universidad de Chile, UEjecutivos | Diplomado de extensión en Six Sigma nivel Black Belt, modalidad híbrida | Diplomado propio |
+| Universidad del Desarrollo | Diplomado Lean Six Sigma con doble certificación Lean Trainer y Green Belt; y diplomado Black Belt | Certificación propia |
+| Universidad Andrés Bello | Diplomado Six Sigma nivel Black Belt | No verificado |
+| Bureau Veritas Chile | Curso y certificación Green Belt | Declara certificación internacional |
+| Instituto Six Sigma Chile, Antofagasta | Green Belt | Acreditado por CSSC |
+| ITCert | Green Belt con examen | CertiProf |
+
+**Ningún arancel en pesos pudo verificarse**, en ninguna institución. Los descuentos que
+publica la UDD constan sin el precio base, lo que los hace inútiles como referencia. De
+USACH no se encontró programa, y las búsquedas de Universidad de los Andes se contaminan
+sistemáticamente con Uniandes de Colombia. Nada de esto prueba que no existan.
+
+Un detalle que te conviene por tu historia: ya hiciste el curso de auditor interno con
+**Bureau Veritas**, así que tienes relación previa con el único proveedor de la lista que
+declara certificación internacional de Green Belt.
+
+## Sobre "Lean Six Sigma 4.0": lo que hay que saber antes de pagar por ese título
+
+**No existe ninguna certificación formal "Lean Six Sigma 4.0"** en ASQ, IASSC ni CSSC.
+Son dos cosas distintas y ninguna es una credencial:
+
+- **Quality 4.0** es un término impulsado institucionalmente por ASQ, con recursos y
+  eventos propios. ASQ lo define como el futuro de la calidad y la excelencia organizacional
+  en el contexto de la Industria 4.0, y subraya que **es más que tecnología**: es el
+  desplazamiento del enfoque reactivo al predictivo, y el paso del profesional de calidad de
+  fiscalizador a navegante de la disrupción digital. Esa frase describe con precisión el
+  cargo al que apuntas.
+- **Lean Six Sigma 4.0** es un constructo académico, acuñado por Arcidiacono y Pieroni en
+  2018. Es literatura de investigación, no un programa.
+
+Por lo tanto, cuando un proveedor te venda un "Black Belt 4.0", lo que estás comprando es su
+propio certificado con contenidos de Industria 4.0 agregados. Puede ser bueno y puede valer
+la pena, pero **no es una credencial reconocida internacionalmente por ese nombre**, y
+conviene que lo sepas antes de firmar.
+
+## Financiamiento en Chile: la franquicia tributaria SENCE
+
+Antes de decidir dónde estudiar conviene saber quién paga. Besalco, por tamaño, casi
+seguramente usa la franquicia tributaria del SENCE, y eso condiciona qué programas son
+viables.
+
+Cómo funciona: es un incentivo de la Ley 19.518 que permite a la empresa descontar del
+impuesto a la renta hasta el **1 % de la planilla anual de remuneraciones imponibles**, con
+un tope de **900 UTM anuales**, por acciones de capacitación autorizadas por el SENCE. Las
+empresas con 15 o más trabajadores permanentes deben tener **comité bipartito de
+capacitación**, que es donde se aprueba el plan anual.
+
+Las tres consecuencias prácticas para tu decisión:
+
+1. **El curso debe estar dado por un OTEC con código SENCE** o ser una actividad autorizada.
+   Un examen internacional rendido directamente ante ASQ o IASSC, sin curso de por medio,
+   habitualmente **no** califica. Un diplomado de una universidad chilena que prepare para
+   ese examen, normalmente sí.
+2. El SENCE fija **valores hora máximos por participante** mediante resolución anual, y el
+   porcentaje imputable depende del tramo de remuneración del trabajador. Con un sueldo de
+   nivel gerencial, es probable que solo una fracción del costo sea imputable y el resto lo
+   asuma la empresa o tú. **[Verificar]** las cifras vigentes de 2026 con Recursos Humanos
+   de Besalco o con la resolución exenta del año; el sitio del SENCE no fue accesible al
+   redactar esta ficha.
+3. El plan anual de capacitación se define con anticipación. Si quieres que Besalco financie
+   un Green Belt en 2027, la conversación con Recursos Humanos y con tu gerencia hay que
+   darla **durante 2026**, no cuando ya elegiste el curso.
+
+Argumento que te sirve para pedirlo: no estás pidiendo un curso, estás proponiendo un
+proyecto de mejora con retorno medible, del cual la certificación es el vehículo. Un Green
+Belt cuyo proyecto reduce el ciclo de aprobación documental paga su costo con el tiempo de
+ingeniería y administración que libera. Ese es exactamente el tipo de propuesta que separa
+a un jefe de un gerente.
+
+Fuente del mecanismo general: [SENCE, Franquicia Tributaria](https://sence.gob.cl/empresas/franquicia-tributaria).
