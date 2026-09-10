@@ -27,7 +27,8 @@ La cola operativa está en `memoria/repaso.md`; aquí se mantiene la vista de co
 | Last Planner, PPC, buffers, variabilidad, LPDS | nucleos/planificacion-last-planner.md | Cargo corporativo aleja de la planificación semanal |
 | Gestión de contratos: modalidades, incentivos, controversias, EPCM vs EPC, FIDIC | nucleos/gestion-contratos-construccion.md | Se estudia a fondo solo al preparar propuestas |
 | Costos: estimación conceptual, costo directo, gastos generales, curva S, valor ganado | nucleos/costos-presupuestos-control.md | El rol HSEQ no presupuesta a diario |
-| PMBOK 7 principios y dominios; PMBOK 6 áreas y procesos; ágil e híbrido | nucleos/pmbok-enfoques-proyectos.md | MBA concluido: sin uso examinado, se erosiona |
+| PMBOK 7 principios y dominios; PMBOK 6 áreas y procesos; ágil e híbrido | nucleos/pmbok-enfoques-proyectos.md | MBA concluido: sin uso examinado, se erosiona. **Además quedó desactualizado: rige el PMBOK 8 desde noviembre de 2025** |
+| PMBOK 8, examen PMP 2026, Cronograma Ganado, Monte Carlo, portafolios | nucleos/direccion-proyectos-pmi-avanzada.md | Estructura y examen cambiaron después de su MBA |
 | ISO 31000 riesgos, ISO 55001 activos, ISO 50001 energía | nucleos/iso-riesgo-activos-energia.md | Aplicadas en SUEZ; hoy menos frecuentes |
 | Hidráulica de redes, tratamiento de aguas y RILES | nucleos/hidraulica-redes-tratamiento.md | Etapa SUEZ; conocimiento valioso que no se ejercita |
 | Estructuras, hormigón, acero, suelos, sismorresistencia | nucleos/fundamentos-constructor-civil.md | Base de la carrera; no se usa en cargo corporativo |

@@ -16,7 +16,7 @@ Reglas para el gemelo al recibir respuestas:
    código nuevo y avisarle.
 5. Nunca completar una respuesta que él no dio. Si falta, la pregunta sigue abierta.
 
-Avance: 8 de 57 contestadas (bloque A: A1-A8 listas; A9-A13 abiertas; E8-E10 nuevas).
+Avance: 8 de 60 contestadas (bloque A: A1-A8 listas; A9-A13 abiertas; E8-E13 nuevas).
 
 ---
 
@@ -77,6 +77,9 @@ Avance: 8 de 57 contestadas (bloque A: A1-A8 listas; A9-A13 abiertas; E8-E10 nue
 - [ ] E4. De los diez núcleos de la biblioteca, ¿cuáles te importan más y cuál sobra o falta?
 - [ ] E8. (nueva) Las cinco líneas de formación que compartiste, ¿vienen de un programa concreto que estás evaluando? Si es así, ¿de qué institución y cuánto cuesta? El nombramiento coincide con varios programas comerciales de Lean Six Sigma 4.0, no con uno solo.
 - [ ] E9. (nueva) ¿Buscas la certificación por la credencial (para el CV y para postular a gerencia) o por el contenido (para aplicarlo en Besalco)? La respuesta cambia radicalmente qué ruta conviene.
+- [ ] E11. (nueva) ¿La institución del MBA puede certificarte las 35 horas de formación en dirección de proyectos en el formato que PMI acepta? Es el único requisito que puede trabar la postulación al PMP.
+- [ ] E12. (nueva) ¿Has usado valor ganado en algún proyecto de Besalco, o el control es solo por avance físico y curva S? ¿Alguien mide el índice de desempeño del cronograma?
+- [ ] E13. (nueva) ¿En las propuestas se hace análisis de Monte Carlo para fijar contingencia, o se usa un porcentaje fijo? ¿Qué percentil exigen los mandantes?
 - [ ] E10. (nueva) ¿Besalco financia formación? ¿Hay presupuesto de capacitación o franquicia SENCE que puedas usar?
 - [ ] E5. ¿Qué normas, reglamentos o estándares consultas más seguido en el trabajo? ¿Cuáles deberías conocer mejor?
 - [ ] E6. ¿Qué herramienta digital quieres dominar mejor (Power BI avanzado, Python, Procore, P6, otra)?

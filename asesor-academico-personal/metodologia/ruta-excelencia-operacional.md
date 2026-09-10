@@ -440,3 +440,123 @@ propia empresa**, nunca un referente de internet. Ese cálculo, además, es exac
 proyecto P5 y hoy no lo tienes medido. Lo que sí es sólido conceptualmente es el modelo de
 cuatro componentes: prevención, evaluación, fallas internas y fallas externas, donde
 prevención suele ser la porción menor pese a tener el mayor retorno.
+
+---
+
+# Parte 4. El eje paralelo: dirección de proyectos PMI
+
+Incorporado el 10 de septiembre de 2026, a partir de siete líneas que Francisco declaró
+clave: metodologías ágiles, híbridas y predictivas; cambios del PMBOK 8; Triángulo del
+Talento; examen PMP; valor ganado y simulación de Monte Carlo; portafolios y programas; y
+liderazgo situacional en contextos complejos.
+
+Contenido técnico completo en `biblioteca/nucleos/direccion-proyectos-pmi-avanzada.md`.
+
+## Por qué es un eje paralelo y no un nivel más
+
+La ruta de excelencia operacional va de Lean a Black Belt ejecutivo: es el eje del **cómo se
+mejora**. Este es el eje del **cómo se dirige**. Se cruzan en el nivel ejecutivo, donde
+gestión de portafolio y despliegue de estrategia son la misma conversación vista desde dos
+tradiciones distintas.
+
+Para el objetivo de gerencia en 2029, los dos ejes cubren cosas distintas y complementarias:
+la excelencia operacional es el argumento de **por qué te contratan** (sabes mejorar procesos
+con datos), y la dirección de proyectos es el argumento de **para qué cargo** (gerente de
+proyectos u operaciones, no solo de calidad).
+
+## Lo urgente: tu MBA quedó parcialmente desactualizado, y no por tu culpa
+
+Cursaste el MBA sobre la base del PMBOK 7. Entre noviembre de 2025 y julio de 2026 cambiaron
+las dos cosas a la vez:
+
+| Qué cambió | Cuándo | Impacto para ti |
+|---|---|---|
+| **PMBOK 8** reemplaza a la 7.ª edición | Digital noviembre 2025, papel enero 2026 | La estructura que estudiaste (12 principios, 8 dominios, sin procesos) ya no es la vigente (6 principios, 7 dominios, 5 áreas de enfoque, 40 procesos) |
+| **Nuevo examen PMP** | 9 de julio de 2026 | El mayor cambio desde 2021. Casi todo el material de preparación que circula está desactualizado |
+
+Actualizarte a la 8.ª edición es **una tarde de lectura**, no un curso. Pero si citas la
+estructura de la 7.ª en una entrevista o en una propuesta ante un mandante que sigue PMI,
+quedas desactualizado sin necesidad.
+
+## La noticia buena: el examen PMP se movió hacia tu perfil
+
+El dominio de **entorno de negocio pasó de 8 % a 26 %** del examen. Se triplicó. Los otros
+dos bajaron: personas de 42 a 33 %, proceso de 50 a 41 %.
+
+Eso significa que el examen ahora premia gobernanza, cumplimiento, valor de negocio y
+alineación estratégica, que es literalmente tu trabajo diario como gestor corporativo, en
+vez de premiar sobre todo la conducción de equipos, que es donde un jefe de terreno tiene
+ventaja sobre ti. **El examen se movió hacia donde tú ya estás parado.**
+
+Además se agregaron inteligencia artificial, sostenibilidad y entrega de valor como
+contenidos, y aparecieron tipos de pregunta nuevos: casos de estudio, arrastrar y soltar,
+emparejamiento, y interpretación de gráficos. Siguen siendo 180 preguntas en 240 minutos.
+
+## El PMP como respuesta al objetivo O3
+
+Con estos datos, el PMP deja de ser una opción entre varias y pasa a ser **la candidata más
+fuerte** para tu certificación siguiente. Las razones, en orden:
+
+1. **Cumples los requisitos con holgura**: título profesional más 36 meses exigidos contra
+   más de 14 años de experiencia, y la ventana de experiencia válida se amplió a 10 años.
+2. **Ya tienes el contenido**: el MBA cubrió el cuerpo conceptual completo. Lo que falta es
+   actualizar a la 8.ª edición y entrenar el formato del examen.
+3. **El examen se movió a tu favor**, como se explicó arriba.
+4. **Es la credencial que un gerente general reconoce sin explicación.** A diferencia de un
+   Black Belt, no hay que justificar qué es.
+5. **Cuesta poco en comparación**: 445 dólares para miembros de PMI contra 675 para no
+   miembros, más membresía. El costo real total es de tres a cinco veces el examen si se
+   suman formación y material, pero sigue siendo una fracción de un diplomado.
+
+**El único punto que puede trabar la postulación**: las 35 horas de formación en dirección de
+proyectos son obligatorias y no se pueden reemplazar por experiencia. El MBA casi seguramente
+las cubre, pero hay que **verificar que la institución las certifique en el formato que PMI
+acepta**. Esa gestión conviene hacerla antes que cualquier otra cosa, porque define si el
+camino está abierto o si hay que sumar un curso.
+
+**Renovación**: 60 unidades de desarrollo profesional cada tres años, repartidas entre los
+tres lados del Triángulo del Talento. Es un costo recurrente que hay que contemplar.
+
+## Las tres técnicas que más te sirven, y por qué
+
+**Cronograma Ganado**, porque corrige un defecto que probablemente has sufrido sin nombrarlo:
+el índice de desempeño del cronograma del valor ganado clásico converge a 1 al final de todo
+proyecto, incluso uno gravemente atrasado. Deja de servir justo cuando más se necesita. El
+Cronograma Ganado mide en unidades de tiempo, así que la desviación se expresa en semanas,
+que es el idioma de una reunión de obra, y no en pesos.
+
+**Monte Carlo**, porque convierte una estimación de un número en un rango con probabilidad, y
+porque expone dos errores que hacen fracasar presupuestos: ignorar la correlación entre
+actividades, que subestima la varianza, y el sesgo de convergencia de rutas, por el cual el
+método de la ruta crítica subestima sistemáticamente la duración cuando hay frentes paralelos
+de duración parecida. Ambos aplican de lleno a un montaje multidisciplina.
+
+**Gestión de portafolio**, porque **tu rol corporativo ya lo es sin llamarse así**.
+Consolidas indicadores de todos los proyectos, decides dónde intervenir y priorizas recursos
+escasos. Ponerle el vocabulario formal (selección, priorización, balanceo, realización de
+beneficios, gobernanza) convierte lo que haces en algo que un directorio reconoce como
+función gerencial. Es el mismo movimiento que hiciste con el TCC: el trabajo ya estaba, le
+faltaba el marco.
+
+## Dónde encaja en el plan de 18 meses
+
+No agrega trimestres. Se superpone así:
+
+| Trimestre | Qué se suma del eje PMI |
+|---|---|
+| T1 | Verificar las 35 horas con la institución del MBA. Es una gestión, no estudio |
+| T2 | Actualización al PMBOK 8: una tarde de lectura más una sesión de repaso |
+| T3 | Cronograma Ganado y Monte Carlo aplicados a un proyecto real, junto con el módulo de estadística |
+| T4 | Si se decide rendir el PMP: preparación de formato y simulacros, en paralelo al Green Belt |
+| T6 | Portafolio y programas, junto con el módulo de despliegue corporativo |
+
+**Advertencia de secuencia**: no rendir PMP y Green Belt el mismo trimestre. Son dos exámenes
+con lógicas distintas y el costo de fallar uno por dispersión es alto.
+
+## Lo que hay que verificar antes de decidir
+
+Todo lo anterior se verificó con buscador porque el acceso directo a pmi.org estuvo
+bloqueado. Antes de pagar o de comprometer un plan, comprobar en la fuente oficial: los
+precios vigentes, el esquema de contenido del examen de 2026 completo, la proporción exacta
+de preguntas predictivas contra ágiles, y el formato en que PMI acepta la acreditación de las
+35 horas.

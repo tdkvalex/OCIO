@@ -30,6 +30,7 @@ técnico (conocimiento que Francisco ya tiene y que se erosiona) están en `nucl
 | Fundamentos del Constructor Civil | nucleos/fundamentos-constructor-civil.md | Carrera |
 | Estadística aplicada | nucleos/estadistica-aplicada.md | Carrera, Power BI, SPC |
 | Quality 4.0, digitalización y analítica | nucleos/quality-40-digitalizacion-procesos.md | Investigación 2026 para la ruta de excelencia operacional |
+| Dirección de proyectos PMI avanzada (PMBOK 8, PMP 2026, valor ganado, Monte Carlo, portafolios) | nucleos/direccion-proyectos-pmi-avanzada.md | Investigación 2026; actualiza el MBA a la edición vigente |
 
 ## Pendientes de ingesta
 Material que Francisco mencionó o que se sabe que existe pero aún no se ha adjuntado:

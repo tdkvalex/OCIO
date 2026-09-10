@@ -45,5 +45,10 @@ python3 scripts/repaso.py listar                        # toda la cola ordenada 
 | Valor ganado: PV, EV, AC, índices, EAC | nucleos/costos-presupuestos-control.md | 0 | 2.5 | 1 |  | 2026-09-07 |
 | Ágil e híbrido: Scrum, Kanban, criterios de elección | nucleos/pmbok-enfoques-proyectos.md | 0 | 2.5 | 1 |  | 2026-09-07 |
 | Calidad de dato: seis dimensiones, ISO 8000 y 25012 | nucleos/quality-40-digitalizacion-procesos.md | 0 | 2.5 | 1 |  | 2026-09-10 |
+| Cronograma Ganado y valor ganado avanzado | nucleos/direccion-proyectos-pmi-avanzada.md | 0 | 2.5 | 1 |  | 2026-09-10 |
+| Examen PMP 2026: dominios, requisitos y formato | nucleos/direccion-proyectos-pmi-avanzada.md | 0 | 2.5 | 1 |  | 2026-09-10 |
 | Hoshin Kanri, madurez y costo de la mala calidad | metodologia/ruta-excelencia-operacional.md | 0 | 2.5 | 1 |  | 2026-09-10 |
+| Monte Carlo: percentiles, distribuciones y sesgos | nucleos/direccion-proyectos-pmi-avanzada.md | 0 | 2.5 | 1 |  | 2026-09-10 |
+| PMBOK 8: principios, dominios y areas de enfoque | nucleos/direccion-proyectos-pmi-avanzada.md | 0 | 2.5 | 1 |  | 2026-09-10 |
+| Portafolios, programas y realizacion de beneficios | nucleos/direccion-proyectos-pmi-avanzada.md | 0 | 2.5 | 1 |  | 2026-09-10 |
 | Quality 4.0: 11 ejes, digital lean, minería de procesos | nucleos/quality-40-digitalizacion-procesos.md | 0 | 2.5 | 1 |  | 2026-09-10 |

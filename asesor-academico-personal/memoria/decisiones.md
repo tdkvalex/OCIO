@@ -91,3 +91,23 @@ Formato:
   programa concreto y cuál. La ruta del gemelo se construyó independiente de proveedor.
 - Impacto en el perfil: nueva ruta `metodologia/ruta-excelencia-operacional.md`, objetivo
   O3 con contenido, competencias y cola de repaso.
+
+## 2026-09-10 · Preferencia declarada (segunda tanda)
+- Contexto: compartió una imagen con siete líneas de un programa de dirección de proyectos y
+  pidió integrarlas.
+- Lo que dijo: metodologías ágiles, híbridas y predictivas; cambios y aspectos del PMBOK 8;
+  Triángulo del Talento PMI; exigencias y preparación del examen PMP; valor ganado y
+  simulación de Monte Carlo; gestión de portafolios y programas; liderazgo situacional en
+  contextos organizacionales complejos.
+- Principio que revela: junto con la tanda anterior de Lean Six Sigma, confirma que construye
+  su perfil como **dos ejes complementarios**: cómo se mejora (excelencia operacional) y cómo
+  se dirige (dirección de proyectos). Coherente con su forma de pensar por capas, ya vista
+  en A3 (Ingeniería Civil Industrial como base, Construcción Civil como especialización, MBA
+  como capa gerencial). No colecciona certificaciones: arma sistemas.
+- Hallazgo relevante que surgió al investigar: su MBA se cursó sobre el PMBOK 7 y la
+  estructura vigente cambió a la 8.ª edición en noviembre de 2025; el examen PMP cambió el 9
+  de julio de 2026 triplicando el peso del dominio de entorno de negocio. Ambos hechos
+  favorecen su perfil corporativo, pero exigen actualizarse.
+- Impacto en el perfil: nuevo núcleo de dirección de proyectos PMI avanzada, parte 4 de la
+  ruta, objetivos O3 elevado a prioridad A con el PMP como candidata principal, y O10 nuevo
+  de actualización al PMBOK 8.
