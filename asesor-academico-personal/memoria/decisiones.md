@@ -111,3 +111,23 @@ Formato:
 - Impacto en el perfil: nuevo núcleo de dirección de proyectos PMI avanzada, parte 4 de la
   ruta, objetivos O3 elevado a prioridad A con el PMP como candidata principal, y O10 nuevo
   de actualización al PMBOK 8.
+
+## 2026-09-11 · Referencias compartidas (tercer eje)
+- Contexto: compartió el enlace del Programa Internacional en Gobierno Corporativo y
+  Transformación Digital de Alta Dirección de la Universidad de Chile con Esade, y el
+  artículo de la revista de AENOR sobre la nueva norma ISO de gestión de la innovación.
+- Principio que revela: completa el patrón de las dos tandas anteriores. Está construyendo
+  deliberadamente **tres ejes de altura creciente**: operación, proyectos y gobierno. No
+  colecciona cursos, arma una escalera hacia el nivel de directorio. Confirma A1 (gerencia a
+  los 40) y A2 (le falta oportunidad, no conocimiento), y muestra que busca activamente esa
+  oportunidad en el mercado formativo.
+- Hallazgo del gemelo: ISO 56001:2024 es la primera norma certificable de gestión de la
+  innovación, comparte estructura de alto nivel con las tres que él ya administra, y su cargo
+  incluye I+D+i. Liderar esa certificación en Besalco es la acción de mayor retorno y menor
+  costo de todo el plan, porque no cuesta matrícula y produce el hito verificable que él
+  mismo identificó como su brecha.
+- Urgencia detectada: la semana en Barcelona del programa es del 28 de septiembre al 2 de
+  octubre de 2026, a poco más de dos semanas. La cohorte 2026 probablemente está cerrada.
+- Impacto en el perfil: núcleo nuevo de gobierno corporativo e innovación, ficha del
+  programa, parte 5 de la ruta, O5 elevado a prioridad A con entregable concreto, y O11
+  nuevo.

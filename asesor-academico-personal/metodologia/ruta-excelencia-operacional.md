@@ -560,3 +560,72 @@ bloqueado. Antes de pagar o de comprometer un plan, comprobar en la fuente ofici
 precios vigentes, el esquema de contenido del examen de 2026 completo, la proporción exacta
 de preguntas predictivas contra ágiles, y el formato en que PMI acepta la acreditación de las
 35 horas.
+
+---
+
+# Parte 5. El tercer eje: gobierno corporativo, innovación e ISO 56001
+
+Incorporado el 11 de septiembre de 2026 a partir de dos referencias que Francisco compartió:
+el Programa Internacional en Gobierno Corporativo y Transformación Digital de Alta Dirección
+de la Universidad de Chile con Esade, y el artículo de la revista de AENOR sobre la nueva
+norma ISO de gestión de la innovación.
+
+Contenido en `biblioteca/nucleos/gobierno-corporativo-innovacion-iso56001.md`. Evaluación del
+programa en `biblioteca/fuentes/programa-gobierno-corporativo-uchile-esade.md`.
+
+## El mapa completo queda así
+
+| Eje | Pregunta | Nivel | Estado |
+|---|---|---|---|
+| 1. Excelencia operacional | ¿Cómo se mejora un proceso con datos? | Operación y mandos medios | Ruta de 18 meses definida |
+| 2. Dirección de proyectos PMI | ¿Cómo se dirige y se entrega valor? | Gerencia de proyectos | PMP como candidata principal |
+| 3. **Gobierno corporativo e innovación** | **¿Cómo se gobierna y de qué se responde?** | **Directorio y alta gerencia** | **Nuevo** |
+
+Los tres convergen en el mismo objeto: el sistema de gestión integrado que Francisco ya
+administra. Hoy cubre calidad, ambiente y seguridad. Podría cubrir además **innovación con
+ISO 56001** y eventualmente **inteligencia artificial con ISO/IEC 42001**. Ese sistema
+ampliado, diseñado y liderado por él, es la evidencia más fuerte posible para postular a una
+gerencia.
+
+## La jugada de mayor retorno y menor costo de todo el plan
+
+**Liderar la certificación ISO 56001 en Besalco.** Los argumentos, en orden:
+
+1. Es **la primera norma internacional certificable** de gestión de la innovación, publicada
+   en septiembre de 2024. Muy pocas empresas en Chile la tienen.
+2. Francisco es **Gestor Senior HSEQ e I+D+i**: la mitad de innovación de su cargo es hoy la
+   menos formalizada. La norma es literalmente el marco que le falta a su propio puesto.
+3. **Comparte la estructura de alto nivel** con las tres normas que ya administra, así que se
+   integra sin rehacer el sistema.
+4. **No cuesta matrícula.** A diferencia del PMP o del programa de Esade, es trabajo dentro
+   de su cargo. El costo lo asume la empresa como certificación, no él como formación.
+5. Produce un **hito visible y verificable**, que es exactamente lo que él identificó como su
+   brecha real cuando dijo que le falta oportunidad y no conocimiento.
+6. Tiene **argumento económico**: algunas entidades valoran la certificación al otorgar
+   financiamiento, y un sistema formal de innovación facilita documentar proyectos para el
+   incentivo tributario de la ley de I+D. **[verificar]** ambos puntos con Corfo y con el
+   organismo certificador de Besalco.
+
+Esto eleva el objetivo O5, que estaba como propuesto y sin fecha, a un proyecto concreto con
+entregable.
+
+## Sobre el programa de la Universidad de Chile con Esade
+
+**Hay urgencia que verificar hoy**: la semana en Barcelona es del **28 de septiembre al 2 de
+octubre de 2026**. La fase en Santiago es previa, así que la cohorte 2026 probablemente ya
+está cerrada o en curso. Si interesa, hay que llamar de inmediato para saber si queda cupo o
+si corresponde apuntar a la cohorte siguiente.
+
+**Evaluación corta**: 46 horas, marca combinada de la Universidad de Chile y Esade, semana
+internacional con visitas a empresas europeas, contenido de directorio y de gobernanza de
+inteligencia artificial. Es el único de los tres ejes que apunta explícitamente al nivel de
+directorio. Pero **no entrega credencial profesional**, el precio no está publicado, y el
+costo real incluye pasajes y días fuera.
+
+**Recomendación de secuencia**, si él paga: primero el PMP porque es más barato y es
+credencial reconocida; en paralelo y sin costo la ISO 56001 porque es su propio cargo;
+después este programa, en la cohorte 2027 o 2028, cuando llegue con credencial y hito en la
+mano y pueda argumentar mejor que la empresa lo financie.
+
+**Si Besalco lo financia y hay cupo, esa secuencia se invierte y hay que tomarlo.** Un
+programa pagado por la empresa con semana en Barcelona no se rechaza por prolijidad teórica.

@@ -16,7 +16,7 @@ Reglas para el gemelo al recibir respuestas:
    código nuevo y avisarle.
 5. Nunca completar una respuesta que él no dio. Si falta, la pregunta sigue abierta.
 
-Avance: 8 de 60 contestadas (bloque A: A1-A8 listas; A9-A13 abiertas; E8-E13 nuevas).
+Avance: 8 de 63 contestadas (bloque A: A1-A8 listas; A9-A13 abiertas; E8-E16 nuevas).
 
 ---
 
@@ -77,6 +77,9 @@ Avance: 8 de 60 contestadas (bloque A: A1-A8 listas; A9-A13 abiertas; E8-E13 nue
 - [ ] E4. De los diez núcleos de la biblioteca, ¿cuáles te importan más y cuál sobra o falta?
 - [ ] E8. (nueva) Las cinco líneas de formación que compartiste, ¿vienen de un programa concreto que estás evaluando? Si es así, ¿de qué institución y cuánto cuesta? El nombramiento coincide con varios programas comerciales de Lean Six Sigma 4.0, no con uno solo.
 - [ ] E9. (nueva) ¿Buscas la certificación por la credencial (para el CV y para postular a gerencia) o por el contenido (para aplicarlo en Besalco)? La respuesta cambia radicalmente qué ruta conviene.
+- [ ] E14. (nueva) El programa de gobierno corporativo de la Universidad de Chile con Esade: ¿lo estás evaluando para ti, te lo ofreció la empresa, o lo viste como referencia de contenido? La respuesta cambia por completo la recomendación. Y si te interesa: la semana en Barcelona es del 28 de septiembre al 2 de octubre de 2026, hay que llamar ya.
+- [ ] E15. (nueva) ¿Besalco tiene hoy algún sistema o procedimiento formal de gestión de la innovación, o el I+D+i se maneja por iniciativas sueltas? ¿Qué organismo certifica hoy sus normas ISO?
+- [ ] E16. (nueva) ¿Has postulado alguna vez a la ley de I+D de Corfo o a algún fondo de innovación? ¿Con qué resultado?
 - [ ] E11. (nueva) ¿La institución del MBA puede certificarte las 35 horas de formación en dirección de proyectos en el formato que PMI acepta? Es el único requisito que puede trabar la postulación al PMP.
 - [ ] E12. (nueva) ¿Has usado valor ganado en algún proyecto de Besalco, o el control es solo por avance físico y curva S? ¿Alguien mide el índice de desempeño del cronograma?
 - [ ] E13. (nueva) ¿En las propuestas se hace análisis de Monte Carlo para fijar contingencia, o se usa un porcentaje fijo? ¿Qué percentil exigen los mandantes?

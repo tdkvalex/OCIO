@@ -52,3 +52,5 @@ python3 scripts/repaso.py listar                        # toda la cola ordenada 
 | PMBOK 8: principios, dominios y areas de enfoque | nucleos/direccion-proyectos-pmi-avanzada.md | 0 | 2.5 | 1 |  | 2026-09-10 |
 | Portafolios, programas y realizacion de beneficios | nucleos/direccion-proyectos-pmi-avanzada.md | 0 | 2.5 | 1 |  | 2026-09-10 |
 | Quality 4.0: 11 ejes, digital lean, minería de procesos | nucleos/quality-40-digitalizacion-procesos.md | 0 | 2.5 | 1 |  | 2026-09-10 |
+| Gobierno corporativo: rol del directorio y cumplimiento | nucleos/gobierno-corporativo-innovacion-iso56001.md | 0 | 2.5 | 1 |  | 2026-09-11 |
+| ISO 56001: requisitos, integracion y certificacion | nucleos/gobierno-corporativo-innovacion-iso56001.md | 0 | 2.5 | 1 |  | 2026-09-11 |

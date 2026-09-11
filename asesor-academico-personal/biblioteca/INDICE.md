@@ -12,6 +12,7 @@ técnico (conocimiento que Francisco ya tiene y que se erosiona) están en `nucl
 | 2 | Malla curricular Construcción Civil | fuentes/malla-construccion-civil.md | Malla | Cursado | Refuerzo de fundamentos | 2026-09-07 |
 | 3 | Diplomado en Gestión de la Construcción, PUC Clase Ejecutiva | fuentes/diplomado-gestion-construccion-uc.md | Programa | Cursado 2021-2022 | Refuerzo: contratos, calidad, planificación, costos | 2026-09-07 |
 | 4 | MBA en Gestión de Proyectos, USP/Esalq (contenido programático) | fuentes/mba-gestion-proyectos-usp-esalq.md | Programa | Concluido | O3 certificación, O7 gerencia, O4 refuerzo | 2026-09-07 |
+| 7 | Programa Internacional en Gobierno Corporativo y Transformación Digital, U. de Chile con Esade | fuentes/programa-gobierno-corporativo-uchile-esade.md | Programa | Evaluado, no cursado | O11, O7 | 2026-09-11 |
 | 6 | Bibliografía Lean Six Sigma (48 referencias verificadas) | bibliografia-lean-six-sigma.md | Bibliografía | Por leer | O3, O6, O7 | 2026-09-10 |
 | 5 | TCC MBA: estandarización y digitalización de protocolos de calidad en minería (documento y defensa) | fuentes/tcc-protocolos-calidad-mineria.md | Obra propia | Aprobado y defendido | O6 AWP, O7 gerencia, O8 publicación, O9 validación | 2026-09-07 |
 
@@ -30,6 +31,7 @@ técnico (conocimiento que Francisco ya tiene y que se erosiona) están en `nucl
 | Fundamentos del Constructor Civil | nucleos/fundamentos-constructor-civil.md | Carrera |
 | Estadística aplicada | nucleos/estadistica-aplicada.md | Carrera, Power BI, SPC |
 | Quality 4.0, digitalización y analítica | nucleos/quality-40-digitalizacion-procesos.md | Investigación 2026 para la ruta de excelencia operacional |
+| Gobierno corporativo, transformación digital e ISO 56001 | nucleos/gobierno-corporativo-innovacion-iso56001.md | Investigación 2026; tercer eje del perfil, nivel directorio |
 | Dirección de proyectos PMI avanzada (PMBOK 8, PMP 2026, valor ganado, Monte Carlo, portafolios) | nucleos/direccion-proyectos-pmi-avanzada.md | Investigación 2026; actualiza el MBA a la edición vigente |
 
 ## Pendientes de ingesta
